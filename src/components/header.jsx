@@ -16,7 +16,7 @@ const Header = () => {
   return (
     <div className={classes.root}><AppBar position="static" className={classes.appBar} color='primary'>
       <Toolbar>
-        <Typography variant="h6">Sheng Ji Helper</Typography>
+        <Typography variant="h6">Shengji Helper</Typography>
       </Toolbar>
     </AppBar></div>
   )
