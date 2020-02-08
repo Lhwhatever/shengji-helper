@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useReducer, useState } from 'react'
 import Moment from 'react-moment'
-import { Box, Button, Card, CardActions, CardContent, makeStyles, Typography, IconButton } from '@material-ui/core'
-import { Add, Delete, ExpandMore, ExpandLess } from '@material-ui/icons'
+import { Box, Button, Card, CardActions, CardContent, makeStyles, Typography, IconButton, TextField } from '@material-ui/core'
+import { Add, Delete, Done, Edit, ExpandMore, ExpandLess } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 
 import Layout from '../components/layout'
 import Emoji from '../components/emoji'
+import { useRef } from 'react'
+import { useEffect } from 'react'
 
 const useStyles = makeStyles(theme => ({
     btn: {
@@ -27,16 +29,31 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-const profiles = [
+const testProfiles = [
     {
-        name: 'Profile 1',
+        name: 'Profile 2',
         lastUsed: new Date('2020-02-07T12:00:00'),
         partnership: 'fixed',
         numOfDecks: 2,
+        uuid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed',
         players: [
             {
                 name: 'ABC',
                 level: 5,
+                active: true
+            }
+        ]
+    },
+    {
+        name: 'Create Profile',
+        lastUsed: new Date('2020-02-07T11:00:00'),
+        partnership: 'floating',
+        numOfDecks: 3,
+        uuid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee',
+        players: [
+            {
+                name: 'DEF',
+                level: 2,
                 active: true
             }
         ]
@@ -52,18 +69,47 @@ let SimplePlayerStatus = ({ player }) => {
 }
 
 SimplePlayerStatus.propTypes = {
-    name: PropTypes.string.isRequired,
-    level: PropTypes.number.isRequired,
-    active: PropTypes.bool.isRequired
+    player: PropTypes.exact({
+        name: PropTypes.string.isRequired,
+        level: PropTypes.number.isRequired,
+        active: PropTypes.bool.isRequired
+    })
 }
 
-let ProfileDisplay = ({ profile, ...props }) => {
+let ProfileDisplay = ({ profile, setProfileName, ...props }) => {
     const classes = useStyles()
+    const [profileNameEditMode, setProfileNameEditMode] = useState(false)
     const [playerListVisibility, setPlayerListVisibility] = useState(false)
+
+    const profileNameFieldRef = useRef()
+
+    const beginEditingProfileName = () => {
+        profileNameFieldRef.current = profile.name
+        setProfileNameEditMode(true)
+    }
+
+    const doneEditingProfileName = () => {
+        setProfileName(profileNameFieldRef.current.value)
+        setProfileNameEditMode(false)
+    }
 
     return (<Card variant="outlined" {...props}>
         <CardContent>
-            <Typography variant="h5">{profile.name}</Typography>
+            {
+                profileNameEditMode ?
+                    <Box className={classes.cardRow} mb={2}>
+                        <TextField label="Profile Name" inputRef={profileNameFieldRef} defaultValue={profile.name}></TextField>
+                        <Box ml={1}><IconButton aria-label="done" size="small" onClick={doneEditingProfileName}>
+                            <Done />
+                        </IconButton></Box>
+                    </Box> :
+                    <Box className={classes.cardRow}>
+                        <Typography variant="h5" mr={1}>{profile.name}</Typography>
+                        <Box ml={1}><IconButton aria-label="edit" size="small" onClick={beginEditingProfileName}>
+                            <Edit />
+                        </IconButton></Box>
+                    </Box>
+            }
             <Box className={classes.cardRow}>
                 <Emoji code="watch" mr={1} />
                 <Typography variant="body2"><Moment local format="DD MMM YYYY, HH:mm">{profile.lastUsed}</Moment></Typography>
@@ -107,15 +153,34 @@ let ProfileDisplay = ({ profile, ...props }) => {
 ProfileDisplay.propTypes = {
     profile: PropTypes.exact({
         name: PropTypes.string.isRequired,
+        uuid: PropTypes.string.isRequired,
         lastUsed: PropTypes.instanceOf(Date).isRequired,
         partnership: PropTypes.oneOf(['fixed', 'floating']).isRequired,
         numOfDecks: PropTypes.number.isRequired,
-        players: PropTypes.arrayOf(PropTypes.exact(SimplePlayerStatus.propTypes)).isRequired
-    }).isRequired
+        players: PropTypes.arrayOf(PropTypes.exact(SimplePlayerStatus.propTypes.player)).isRequired
+    }).isRequired,
+    setProfileName: PropTypes.func
 }
 
 const Calculator = () => {
     const classes = useStyles()
+    const [profiles, profileDispatch] = useReducer((state, action) => {
+        switch (action.type) {
+            case 'setProfileName':
+                const i = state.findIndex(profile => profile.uuid === action.key)
+                let profiles = state.slice()
+                profiles[i].name = action.value
+                return profiles;
+            case 'setProfiles':
+                return action.value;
+            default:
+                throw new Error(`Unknown action type ${action.type}`)
+        }
+    }, [])
+
+    useEffect(() => {
+        profileDispatch({ type: 'setProfiles', value: testProfiles })
+    })
 
     return (<Layout>
         <Typography variant="h4">Calculator</Typography>
@@ -129,7 +194,15 @@ const Calculator = () => {
         <Box m={2}>
             {
                 profiles.length ?
-                    profiles.map(e => <ProfileDisplay profile={e} key={e.name} />) :
+                    profiles.map(e => (
+                        <Box mb={1} key={e.uuid}>
+                            <ProfileDisplay profile={e} setProfileName={name => profileDispatch({
+                                type: 'setProfileName',
+                                key: e.uuid,
+                                value: name
+                            })} />
+                        </Box>
+                    )) :
                     <Typography variant="body2">No profiles to display!</Typography>
             }
         </Box>
