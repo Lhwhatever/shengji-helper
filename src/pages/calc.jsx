@@ -1,6 +1,10 @@
 import React, { useReducer, useState } from 'react'
 import Moment from 'react-moment'
-import { Box, Button, Card, CardActions, CardContent, makeStyles, Typography, IconButton, TextField } from '@material-ui/core'
+import {
+    Box, Button, FormControl, Input, Card, CardActions, CardContent, makeStyles,
+    Typography, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogContentText,
+    InputAdornment, InputLabel, Select, MenuItem
+} from '@material-ui/core'
 import { Add, Delete, Done, Edit, ExpandMore, ExpandLess } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 
@@ -8,13 +12,11 @@ import Layout from '../components/layout'
 import Emoji from '../components/emoji'
 import { useRef } from 'react'
 import { useEffect } from 'react'
+import range from '../helper/range'
 
 const useStyles = makeStyles(theme => ({
     btn: {
         margin: theme.spacing(1)
-    },
-    capitalized: {
-        textTransform: 'capitalize'
     },
     cardRow: {
         display: 'flex',
@@ -26,6 +28,14 @@ const useStyles = makeStyles(theme => ({
     },
     activeLevel: {
         textDecoration: 'underline'
+    },
+    profileNameField: {
+        marginBottom: theme.spacing(2),
+        width: 400
+    },
+    createProfileDialog: {
+        display: 'flex',
+        flexDirection: 'column'
     }
 }))
 
@@ -76,7 +86,7 @@ SimplePlayerStatus.propTypes = {
     })
 }
 
-let ProfileDisplay = ({ profile, setProfileName, ...props }) => {
+let ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) => {
     const classes = useStyles()
     const [profileNameEditMode, setProfileNameEditMode] = useState(false)
     const [playerListVisibility, setPlayerListVisibility] = useState(false)
@@ -97,12 +107,21 @@ let ProfileDisplay = ({ profile, setProfileName, ...props }) => {
         <CardContent>
             {
                 profileNameEditMode ?
-                    <Box className={classes.cardRow} mb={2}>
-                        <TextField label="Profile Name" inputRef={profileNameFieldRef} defaultValue={profile.name}></TextField>
-                        <Box ml={1}><IconButton aria-label="done" size="small" onClick={doneEditingProfileName}>
-                            <Done />
-                        </IconButton></Box>
-                    </Box> :
+                    <FormControl className={classes.profileNameField}>
+                        <InputLabel htmlFor={`profile-name-field-${profile.uuid}`}>Profile Name</InputLabel>
+                        <Input
+                            id={`profile-name-field-${profile.uuid}`}
+                            inputRef={profileNameFieldRef}
+                            defaultValue={profile.name}
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton aria-label="done" onClick={doneEditingProfileName}>
+                                        <Done />
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                        />
+                    </FormControl> :
                     <Box className={classes.cardRow}>
                         <Typography variant="h5" mr={1}>{profile.name}</Typography>
                         <Box ml={1}><IconButton aria-label="edit" size="small" onClick={beginEditingProfileName}>
@@ -145,7 +164,7 @@ let ProfileDisplay = ({ profile, setProfileName, ...props }) => {
             }
         </CardContent>
         <CardActions>
-            <IconButton aria-label="delete"><Delete /></IconButton>
+            <IconButton aria-label="delete" size="small" onClick={deleteProfile}><Delete /></IconButton>
         </CardActions>
     </Card>)
 }
@@ -157,13 +176,45 @@ ProfileDisplay.propTypes = {
         lastUsed: PropTypes.instanceOf(Date).isRequired,
         partnership: PropTypes.oneOf(['fixed', 'floating']).isRequired,
         numOfDecks: PropTypes.number.isRequired,
-        players: PropTypes.arrayOf(PropTypes.exact(SimplePlayerStatus.propTypes.player)).isRequired
+        players: PropTypes.arrayOf(SimplePlayerStatus.propTypes.player).isRequired
     }).isRequired,
     setProfileName: PropTypes.func
 }
 
+const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
+    const classes = useStyles()
+    const profileNameFieldRef = useRef()
+    const [numOfPlayers, setNumOfPlayers] = useState()
+    const [partnership, setPartnership] = useState()
+
+    return (<Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
+        <DialogTitle>Create new profile</DialogTitle>
+        <DialogContent>
+            <DialogContentText>To create a new profile, fill in the following information.</DialogContentText>
+            <DialogContent className={classes.createProfileDialog}>
+                <TextField label="Profile Name" inputRef={profileNameFieldRef} className={classes.profileNameField} />
+                <FormControl>
+                    <InputLabel id="new-profile-select-player-num-label">No. of Players</InputLabel>
+                    <Select
+                        labelId="new-profile-select-player-num-label"
+                        inputRef={numOfPlayers}
+                        value={numOfPlayers}
+                        onChange={setNumOfPlayers}
+                    >
+                        {range(4, 10).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
+                    </Select>
+                </FormControl>
+                <FormControl>
+
+                </FormControl>
+            </DialogContent>
+        </DialogContent>
+    </Dialog >)
+}
+
 const Calculator = () => {
     const classes = useStyles()
+    const [createProfileDialogOpen, setCreateProfileDialogOpen] = useState(false)
     const [profiles, profileDispatch] = useReducer((state, action) => {
         switch (action.type) {
             case 'setProfileName':
@@ -173,6 +224,8 @@ const Calculator = () => {
                 return profiles;
             case 'setProfiles':
                 return action.value;
+            case 'deleteProfile':
+                return state.filter(profile => profile.uuid !== action.key);
             default:
                 throw new Error(`Unknown action type ${action.type}`)
         }
@@ -190,7 +243,9 @@ const Calculator = () => {
             color="primary"
             className={classes.btn}
             startIcon={<Add />}
+            onClick={() => setCreateProfileDialogOpen(true)}
         >Create Profile</Button>
+        <CreateProfileDialog open={createProfileDialogOpen} setOpen={setCreateProfileDialogOpen} />
         <Box m={2}>
             {
                 profiles.length ?
@@ -200,6 +255,9 @@ const Calculator = () => {
                                 type: 'setProfileName',
                                 key: e.uuid,
                                 value: name
+                            })} deleteProfile={() => profileDispatch({
+                                type: 'deleteProfile',
+                                key: e.uuid
                             })} />
                         </Box>
                     )) :
