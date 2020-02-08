@@ -12,6 +12,13 @@ const theme = createMuiTheme({
         error: {
             main: lightGreen.A400
         }
+    },
+    typography: {
+        fontFamily: [
+            'Roboto',
+            '"Helvetica Neue"',
+            'sans-serif'
+        ].join(',')
     }
 })
 
