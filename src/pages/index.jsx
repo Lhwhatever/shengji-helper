@@ -44,7 +44,7 @@ const IndexPage = () => {
       <Box className={classes.root}>
         <Box className={classes.links}>
           <LinkSectionHeader className={classes.linksectheaderbox} />
-          <Box><ButtonLink variant="outlined">Calculator</ButtonLink></Box>
+          <Box><ButtonLink variant="outlined" to="/calc">Calculator</ButtonLink></Box>
         </Box>
         <Box className={classes.image}><Image /></Box>
       </Box>
