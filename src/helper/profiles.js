@@ -9,9 +9,9 @@ export const loadProfiles = window => {
             partnership: (profile.floating ? 'floating' : 'fixed'),
             numOfDecks: profile.numOfDecks,
             players: profile.players.map(player => ({
-                name: player.name,
-                level: player.level >> 1,
-                active: (player.level & 1) == 1
+                name: player[0],
+                level: player[1] >> 1,
+                active: (player[1] & 1) === 1
             }))
         }))
 }

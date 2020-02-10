@@ -14,6 +14,7 @@ import { useRef } from 'react'
 import { useEffect } from 'react'
 import range from '../helper/range'
 import { saveProfiles, loadProfiles } from '../helper/profiles'
+import DeleteDialog from '../components/deleteDialog'
 
 const useStyles = makeStyles(theme => ({
     btn: {
@@ -37,39 +38,17 @@ const useStyles = makeStyles(theme => ({
     createProfileDialog: {
         display: 'flex',
         flexDirection: 'column'
+    },
+    dialogRow: {
+        display: 'flex',
+        flexDirection: 'row'
+    },
+    capitalize: {
+        textTransform: 'capitalize'
     }
 }))
 
-const testProfiles = [
-    {
-        name: 'Profile 2',
-        lastUsed: new Date('2020-02-07T12:00:00'),
-        partnership: 'fixed',
-        numOfDecks: 2,
-        uuid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed',
-        players: [
-            {
-                name: 'ABC',
-                level: 5,
-                active: true
-            }
-        ]
-    },
-    {
-        name: 'Create Profile',
-        lastUsed: new Date('2020-02-07T11:00:00'),
-        partnership: 'floating',
-        numOfDecks: 3,
-        uuid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee',
-        players: [
-            {
-                name: 'DEF',
-                level: 2,
-                active: true
-            }
-        ]
-    }
-]
+//[{"name":"Profile%202","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed","lastUsed":"2020-02-07T04:00:00.000Z","floating":0,"numOfDecks":2,"players":[["DEF",8]]},{"name":"Create%20Profile","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee","lastUsed":"2020-02-07T03:00:00.000Z","floating":1,"numOfDecks":3,"players":[["DEF",3]]}]
 
 let SimplePlayerStatus = ({ player }) => {
     const classes = useStyles()
@@ -183,10 +162,22 @@ ProfileDisplay.propTypes = {
 }
 
 const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
+    const FF = ['floating', 'fixed']
+    const F1 = ['floating']
+
     const classes = useStyles()
     const profileNameFieldRef = useRef()
-    const [numOfPlayers, setNumOfPlayers] = useState()
-    const [partnership, setPartnership] = useState()
+    const [numOfPlayers, setNumOfPlayers] = useState(4)
+    const [partnershipModeList, setPartnershipModeList] = useState(FF)
+    const [partnership, setPartnership] = useState('fixed')
+
+    const handleNumOfPlayerChange = event => {
+        setNumOfPlayers(event.target.value)
+        if (event.target.value % 2) {
+            setPartnershipModeList(F1)
+            setPartnership('floating')
+        } else setPartnershipModeList(FF)
+    }
 
     return (<Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
         <DialogTitle>Create new profile</DialogTitle>
@@ -194,28 +185,39 @@ const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
             <DialogContentText>To create a new profile, fill in the following information.</DialogContentText>
             <DialogContent className={classes.createProfileDialog}>
                 <TextField label="Profile Name" inputRef={profileNameFieldRef} className={classes.profileNameField} />
-                <FormControl>
-                    <InputLabel id="new-profile-select-player-num-label">No. of Players</InputLabel>
-                    <Select
-                        labelId="new-profile-select-player-num-label"
-                        inputRef={numOfPlayers}
-                        value={numOfPlayers}
-                        onChange={setNumOfPlayers}
-                    >
-                        {range(4, 11).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
-                    </Select>
-                </FormControl>
-                <FormControl>
-
-                </FormControl>
+                <Box className={classes.dialogRow}>
+                    <FormControl fullWidth>
+                        <InputLabel id="new-profile-select-player-num-label">No. of Players</InputLabel>
+                        <Select
+                            labelId="new-profile-select-player-num-label"
+                            value={numOfPlayers}
+                            onChange={handleNumOfPlayerChange}
+                        >
+                            {range(4, 11).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <Box ml={2} />
+                    <FormControl fullWidth>
+                        <InputLabel id="new-profile-select-partnership-label">Partnership Format</InputLabel>
+                        <Select
+                            labelId="new-profile-select-partnership-label"
+                            value={partnership}
+                            onChange={event => setPartnership(event.target.value)}
+                        >
+                            {partnershipModeList.map(e => <MenuItem key={e} value={e}><span className={classes.capitalize}>{e}</span></MenuItem>)}
+                        </Select>
+                    </FormControl>
+                </Box>
             </DialogContent>
         </DialogContent>
-    </Dialog >)
+    </Dialog>)
 }
+
 
 const Calculator = () => {
     const classes = useStyles()
     const [createProfileDialogOpen, setCreateProfileDialogOpen] = useState(false)
+    const [deleteProfileDialogOpen, setDeleteProfileDialogOpen] = useState([null, null])
     const [profiles, profileDispatch] = useReducer((state, action) => {
         switch (action.type) {
             case 'setProfileName': {
@@ -224,9 +226,8 @@ const Calculator = () => {
                 newProfiles[i].name = action.value
                 return newProfiles;
             }
-            case 'deleteProfile': {
-                return state.filter(profile => profile.uuid !== action.key)
-            }
+            case 'deleteProfile':
+                return (action.key === '') ? [] : state.filter(profile => profile.uuid !== action.key);
             default:
                 throw new Error(`Unknown action type ${action.type}`)
         }
@@ -246,7 +247,22 @@ const Calculator = () => {
             startIcon={<Add />}
             onClick={() => setCreateProfileDialogOpen(true)}
         >Create Profile</Button>
+        <Button
+            variant="contained"
+            color="secondary"
+            className={classes.btn}
+            startIcon={<Delete />}
+            onClick={() => setDeleteProfileDialogOpen(['', 'all profiles'])}
+            disabled={profiles.length === 0}
+        >
+            Delete All
+        </Button>
         <CreateProfileDialog open={createProfileDialogOpen} setOpen={setCreateProfileDialogOpen} />
+        <DeleteDialog
+            open={deleteProfileDialogOpen}
+            setOpen={setDeleteProfileDialogOpen}
+            onDelete={target => profileDispatch({ type: 'deleteProfile', key: target })}
+        />
         <Box m={2}>
             {
                 profiles.length ?
@@ -256,13 +272,9 @@ const Calculator = () => {
                                 type: 'setProfileName',
                                 key: e.uuid,
                                 value: name
-                            })} deleteProfile={() => profileDispatch({
-                                type: 'deleteProfile',
-                                key: e.uuid
-                            })} />
+                            })} deleteProfile={() => setDeleteProfileDialogOpen([e.uuid, e.name])} />
                         </Box>
-                    )) :
-                    <Typography variant="body2">No profiles to display!</Typography>
+                    )) : null
             }
         </Box>
     </Layout>)
