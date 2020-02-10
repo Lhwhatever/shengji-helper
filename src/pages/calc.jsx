@@ -35,11 +35,11 @@ const useStyles = makeStyles(theme => ({
         marginBottom: theme.spacing(2),
         width: 400
     },
-    createProfileDialog: {
+    vContainer: {
         display: 'flex',
         flexDirection: 'column'
     },
-    dialogRow: {
+    hContainer: {
         display: 'flex',
         flexDirection: 'row'
     },
@@ -48,22 +48,49 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-//[{"name":"Profile%202","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed","lastUsed":"2020-02-07T04:00:00.000Z","floating":0,"numOfDecks":2,"players":[["DEF",8]]},{"name":"Create%20Profile","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee","lastUsed":"2020-02-07T03:00:00.000Z","floating":1,"numOfDecks":3,"players":[["DEF",3]]}]
+//[{"name":"Profile%202","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed","lastUsed":"2020-02-07T04:00:00.000Z","floating":0,"numOfDecks":2,"players":[["DEF",8],["KBC",2]]},{"name":"Create%20Profile","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee","lastUsed":"2020-02-07T03:00:00.000Z","floating":1,"numOfDecks":3,"players":[["DEF",3],["GHI",10]]}]
+const formatList = array => array.reduce((a, e) => (a === null ? [e] : [...a, ', ', e]), null)
 
-let SimplePlayerStatus = ({ player }) => {
+const LevelDisplay = props => {
+    const active = props.active || props.player.active || false
+    const level = props.level || props.player.level || false
+
+    const classes = useStyles()
+    return <span className={active ? classes.activeLevel : null}>{level}</span>
+}
+
+let SimplePlayerStatus = ({ partnership, players }) => {
     const classes = useStyles()
 
-    return (<>
-        {player.name} (<Box component="span" className={player.active ? classes.activeLevel : null}>{player.level}</Box>)
-    </>)
+    if (partnership === 'floating') {
+        return (<>
+            <Typography variant="body2">
+                {
+                    formatList(players.map(
+                        player => <>{player.name} (<LevelDisplay player={player} />)</>
+                    ))
+                }
+            </Typography>
+        </>)
+    } else {
+        return (<Box className={classes.vContainer}>
+            <Typography variant="body2">
+                Team 1 (<LevelDisplay player={players[0]} />): {formatList(players.filter((e, i) => (i % 2 === 0)).map(player => player.name))}
+            </Typography>
+            <Typography variant="body2">
+                Team 2 (<LevelDisplay player={players[1]} />): {formatList(players.filter((e, i) => (i % 2 === 1)).map(player => player.name))}
+            </Typography>
+        </Box>)
+    }
+
 }
 
 SimplePlayerStatus.propTypes = {
-    player: PropTypes.exact({
+    players: PropTypes.arrayOf(PropTypes.exact({
         name: PropTypes.string.isRequired,
         level: PropTypes.number.isRequired,
         active: PropTypes.bool.isRequired
-    })
+    })).isRequired
 }
 
 let ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) => {
@@ -135,11 +162,7 @@ let ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) => {
             {
                 playerListVisibility && <Box className={classes.cardRow}>
                     <Emoji code="busts_in_silhouette" mr={1} className={classes.invisible} />
-                    <Typography variant="body2">{
-                        profile.players
-                            .map(e => <SimplePlayerStatus key={e.name} player={e} />)
-                            .reduce((a, e) => (a === null ? [e] : [...a, ', ', e]), null)
-                    }</Typography>
+                    <SimplePlayerStatus players={profile.players} partnership={profile.partnership} />
                 </Box>
             }
         </CardContent>
@@ -156,7 +179,7 @@ ProfileDisplay.propTypes = {
         lastUsed: PropTypes.instanceOf(Date).isRequired,
         partnership: PropTypes.oneOf(['fixed', 'floating']).isRequired,
         numOfDecks: PropTypes.number.isRequired,
-        players: PropTypes.arrayOf(SimplePlayerStatus.propTypes.player).isRequired
+        players: SimplePlayerStatus.propTypes.players
     }).isRequired,
     setProfileName: PropTypes.func
 }
@@ -183,9 +206,9 @@ const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
         <DialogTitle>Create new profile</DialogTitle>
         <DialogContent>
             <DialogContentText>To create a new profile, fill in the following information.</DialogContentText>
-            <DialogContent className={classes.createProfileDialog}>
+            <DialogContent className={classes.vContainer}>
                 <TextField label="Profile Name" inputRef={profileNameFieldRef} className={classes.profileNameField} />
-                <Box className={classes.dialogRow}>
+                <Box className={classes.hContainer}>
                     <FormControl fullWidth>
                         <InputLabel id="new-profile-select-player-num-label">No. of Players</InputLabel>
                         <Select
@@ -198,7 +221,7 @@ const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
                     </FormControl>
                     <Box ml={2} />
                     <FormControl fullWidth>
-                        <InputLabel id="new-profile-select-partnership-label">Partnership Format</InputLabel>
+                        <InputLabel id="new-profile-select-partnership-label">Partnership Mode</InputLabel>
                         <Select
                             labelId="new-profile-select-partnership-label"
                             value={partnership}
