@@ -13,6 +13,7 @@ import Emoji from '../components/emoji'
 import { useRef } from 'react'
 import { useEffect } from 'react'
 import range from '../helper/range'
+import { saveProfiles, loadProfiles } from '../helper/profiles'
 
 const useStyles = makeStyles(theme => ({
     btn: {
@@ -201,7 +202,7 @@ const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
                         value={numOfPlayers}
                         onChange={setNumOfPlayers}
                     >
-                        {range(4, 10).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
+                        {range(4, 11).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
                     </Select>
                 </FormControl>
                 <FormControl>
@@ -217,23 +218,23 @@ const Calculator = () => {
     const [createProfileDialogOpen, setCreateProfileDialogOpen] = useState(false)
     const [profiles, profileDispatch] = useReducer((state, action) => {
         switch (action.type) {
-            case 'setProfileName':
+            case 'setProfileName': {
                 const i = state.findIndex(profile => profile.uuid === action.key)
-                let profiles = state.slice()
-                profiles[i].name = action.value
-                return profiles;
-            case 'setProfiles':
-                return action.value;
-            case 'deleteProfile':
-                return state.filter(profile => profile.uuid !== action.key);
+                let newProfiles = state.slice()
+                newProfiles[i].name = action.value
+                return newProfiles;
+            }
+            case 'deleteProfile': {
+                return state.filter(profile => profile.uuid !== action.key)
+            }
             default:
                 throw new Error(`Unknown action type ${action.type}`)
         }
-    }, [])
+    }, [], () => loadProfiles(window))
 
     useEffect(() => {
-        profileDispatch({ type: 'setProfiles', value: testProfiles })
-    })
+        saveProfiles(profiles, window)
+    }, [profiles])
 
     return (<Layout>
         <Typography variant="h4">Calculator</Typography>
