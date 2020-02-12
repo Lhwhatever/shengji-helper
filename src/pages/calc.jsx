@@ -12,10 +12,10 @@ import Layout from '../components/layout'
 import Emoji from '../components/emoji'
 import { useRef } from 'react'
 import { useEffect } from 'react'
-import range from '../helper/range'
 import { saveProfiles, loadProfiles } from '../helper/profiles'
 import DeleteDialog from '../components/deleteDialog'
-import SelectField from '../components/selectField'
+import SelectField from '../components/inputs/selectField'
+import NumOfPlayerField from '../components/inputs/numOfPlayerField'
 
 const useStyles = makeStyles(theme => ({
     btn: {
@@ -210,12 +210,7 @@ const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
             <DialogContent className={classes.vContainer}>
                 <TextField label="Profile Name" inputRef={profileNameFieldRef} className={classes.profileNameField} />
                 <Box className={classes.hContainer}>
-                    <SelectField
-                        fullWidth
-                        label={"No. of Players"}
-                        value={numOfPlayers}
-                        onChange={handleNumOfPlayerChange}
-                    >{range(4, 11).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}</SelectField>
+                    <NumOfPlayerField value={numOfPlayers} onChange={handleNumOfPlayerChange} />
                     <Box ml={2} />
                     <SelectField
                         fullWidth
