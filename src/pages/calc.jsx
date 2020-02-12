@@ -3,7 +3,7 @@ import Moment from 'react-moment'
 import {
     Box, Button, FormControl, Input, Card, CardActions, CardContent, makeStyles,
     Typography, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogContentText,
-    InputAdornment, InputLabel, Select, MenuItem
+    InputAdornment, InputLabel, MenuItem
 } from '@material-ui/core'
 import { Add, Delete, Done, Edit, ExpandMore, ExpandLess } from '@material-ui/icons'
 import PropTypes from 'prop-types'
@@ -15,6 +15,7 @@ import { useEffect } from 'react'
 import range from '../helper/range'
 import { saveProfiles, loadProfiles } from '../helper/profiles'
 import DeleteDialog from '../components/deleteDialog'
+import SelectField from '../components/selectField'
 
 const useStyles = makeStyles(theme => ({
     btn: {
@@ -209,27 +210,21 @@ const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
             <DialogContent className={classes.vContainer}>
                 <TextField label="Profile Name" inputRef={profileNameFieldRef} className={classes.profileNameField} />
                 <Box className={classes.hContainer}>
-                    <FormControl fullWidth>
-                        <InputLabel id="new-profile-select-player-num-label">No. of Players</InputLabel>
-                        <Select
-                            labelId="new-profile-select-player-num-label"
-                            value={numOfPlayers}
-                            onChange={handleNumOfPlayerChange}
-                        >
-                            {range(4, 11).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
-                        </Select>
-                    </FormControl>
+                    <SelectField
+                        fullWidth
+                        label={"No. of Players"}
+                        value={numOfPlayers}
+                        onChange={handleNumOfPlayerChange}
+                    >{range(4, 11).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}</SelectField>
                     <Box ml={2} />
-                    <FormControl fullWidth>
-                        <InputLabel id="new-profile-select-partnership-label">Partnership Mode</InputLabel>
-                        <Select
-                            labelId="new-profile-select-partnership-label"
-                            value={partnership}
-                            onChange={event => setPartnership(event.target.value)}
-                        >
-                            {partnershipModeList.map(e => <MenuItem key={e} value={e}><span className={classes.capitalize}>{e}</span></MenuItem>)}
-                        </Select>
-                    </FormControl>
+                    <SelectField
+                        fullWidth
+                        label="Partnership Mode"
+                        value={partnership}
+                        onChange={event => setPartnership(event.target.value)}
+                    >
+                        {partnershipModeList.map(e => <MenuItem key={e} value={e}><span className={classes.capitalize}>{e}</span></MenuItem>)}
+                    </SelectField>
                 </Box>
             </DialogContent>
         </DialogContent>
