@@ -1,5 +1,6 @@
 import React from "react"
 import { AppBar, makeStyles, Toolbar, Typography } from '@material-ui/core'
+import { InternalLink } from "./links";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -16,7 +17,7 @@ const Header = () => {
   return (
     <div className={classes.root}><AppBar position="static" className={classes.appBar} color='primary'>
       <Toolbar>
-        <Typography variant="h6">Shengji Helper</Typography>
+        <Typography variant="h6"><InternalLink>Shengji Helper</InternalLink></Typography>
       </Toolbar>
     </AppBar></div>
   )
