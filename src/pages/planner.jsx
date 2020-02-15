@@ -30,7 +30,7 @@ const Planner = () => {
             value={numOfPlayers} onChange={handleNumOfPlayerChange}
             className={classes.numOfPlayerField}
         />
-        <Box className={classes.deckPlanner}><DeckPlanner /></Box>
+        <Box className={classes.deckPlanner}><DeckPlanner numOfPlayers={numOfPlayers} /></Box>
     </Layout>)
 }
 
