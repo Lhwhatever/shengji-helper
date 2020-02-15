@@ -14,18 +14,23 @@ export const ButtonLink = ({ children, ...props }) => (
 )
 
 ButtonLink.propTypes = {
-    to: PropTypes.string,
+    to: PropTypes.string.isRequired,
     children: PropTypes.element
 }
 
-export const InternalLink = ({ children, color, doUnderline, ...props }) => (
+export const InternalLink = ({ children, color, ...props }) => (
     <MuiLink
         component={GatsbyLink}
         color={color || 'inherit'}
-        style={{ textDecoration: doUnderline ? 'inherit' : 'none' }}
+        style={{ textDecoration: props.doUnderline ? 'inherit' : 'none' }}
         {...props}
     >
         {children}
     </MuiLink>
 )
 
+InternalLink.propTypes = {
+    color: PropTypes.string,
+    doUnderline: PropTypes.bool,
+    to: PropTypes.string.isRequired
+}
