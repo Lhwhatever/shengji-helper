@@ -1,8 +1,8 @@
+import { Box, makeStyles, Typography } from '@material-ui/core'
 import React, { useState } from 'react'
+
+import { DeckPlanner, NumOfPlayerField } from '../components/inputs'
 import Layout from '../components/layout'
-import { makeStyles, Typography, Box } from '@material-ui/core'
-import NumOfPlayerField from '../components/inputs/numOfPlayerField'
-import DeckPlanner from '../components/inputs/deckPlanner'
 
 const useStyles = makeStyles(theme => ({
     numOfPlayerField: {
