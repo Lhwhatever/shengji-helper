@@ -1,5 +1,9 @@
 import React from 'react'
-import { Paper, Table, TableCell, TableContainer, TableHead, TableRow, makeStyles, TableBody } from '@material-ui/core'
+import PropTypes from 'prop-types'
+import {
+    Paper, Table, TableCell, TableContainer, TableHead,
+    TableRow, makeStyles, TableBody
+} from '@material-ui/core'
 
 const CARDS_PER_DECK = 54
 const MIN_SPARE_RATIO = 0.2
@@ -8,8 +12,14 @@ const MAX_SPARE_RATIO = 0.5
 const useStyles = makeStyles(theme => ({
     table: {
         '& td, & th': {
-            padding: theme.spacing(2),
-            textAlign: 'center'
+            paddingTop: props => theme.spacing(props.dense ? 0.75 : 2),
+            paddingBottom: props => theme.spacing(props.dense ? 0.75 : 2),
+            paddingLeft: theme.spacing(2),
+            paddingRight: props => theme.spacing(props.dense ? 3 : 2),
+            textAlign: 'center',
+        },
+        '& td:last-child, & th:last-child': {
+            paddingRight: theme.spacing(2)
         },
         '& table': {
             marginBottom: theme.spacing(0)
@@ -47,11 +57,11 @@ const getRowData = numOfPlayers => {
 }
 
 const DeckPlanner = ({ numOfPlayers, ...props }) => {
-    const classes = useStyles()
+    const classes = useStyles(props)
     const rowData = getRowData(numOfPlayers)
 
     return (<TableContainer component={Paper} className={classes.table}>
-        <Table aria-label="table of decks" size={props.small ? 'small' : null}>
+        <Table aria-label="table of decks">
             <TableHead align="center">
                 <TableRow>
                     <TableCell>Decks</TableCell>
@@ -70,6 +80,11 @@ const DeckPlanner = ({ numOfPlayers, ...props }) => {
             }</TableBody>
         </Table>
     </TableContainer>)
+}
+
+DeckPlanner.propTypes = {
+    numOfPlayers: PropTypes.number.isRequired,
+    dense: PropTypes.bool
 }
 
 export default DeckPlanner
