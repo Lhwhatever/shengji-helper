@@ -15,7 +15,7 @@ export const ButtonLink = ({ children, ...props }) => (
 
 ButtonLink.propTypes = {
     to: PropTypes.string.isRequired,
-    children: PropTypes.element
+    children: PropTypes.node
 }
 
 export const InternalLink = ({ children, color, ...props }) => (
