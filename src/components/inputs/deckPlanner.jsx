@@ -1,9 +1,6 @@
-import React from 'react'
+import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core'
 import PropTypes from 'prop-types'
-import {
-    Paper, Table, TableCell, TableContainer, TableHead,
-    TableRow, makeStyles, TableBody
-} from '@material-ui/core'
+import React from 'react'
 
 const CARDS_PER_DECK = 54
 const MIN_SPARE_RATIO = 0.2
@@ -33,7 +30,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const getRowData = numOfPlayers => {
-    const rowData = [];
+    const rowData = []
 
     for (let decks = 2; decks <= 4; ++decks) {
         const totalCards = decks * CARDS_PER_DECK
@@ -53,7 +50,7 @@ const getRowData = numOfPlayers => {
         }
     }
 
-    return rowData;
+    return rowData
 }
 
 const DeckPlanner = ({ numOfPlayers, ...props }) => {

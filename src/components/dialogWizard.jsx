@@ -4,8 +4,8 @@ import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
 
 
-export function asWizardStep(Step, actions, initializerArg, initializer) {
-    return ({ advance, last, onCancel, wizardDispatch }) => {
+export const asWizardStep = (Step, actions, initializerArg, initializer) => {
+    function WizardStep({ advance, last, onCancel, wizardDispatch }) {
         const [stepState, stepDispatch] = useReducer(
             (state, action) => {
                 switch (action.type) {
@@ -25,7 +25,7 @@ export function asWizardStep(Step, actions, initializerArg, initializer) {
                     const { error, actionToFeedback } = actions.validate(stepState)
                     if (error) {
                         stepDispatch(actionToFeedback)
-                        return;
+                        return
                     }
                 }
                 wizardDispatch(actions.onNext(stepState))
@@ -47,6 +47,15 @@ export function asWizardStep(Step, actions, initializerArg, initializer) {
             </DialogActions>
         </>)
     }
+
+    WizardStep.propTypes = {
+        advance: PropTypes.func.isRequired,
+        last: PropTypes.bool.isRequired,
+        onCancel: PropTypes.func.isRequired,
+        wizardDispatch: PropTypes.func.isRequired
+    }
+
+    return WizardStep
 }
 
 
@@ -94,26 +103,26 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
             setStepIndex(0)
             setDone(false)
         }
-    }, [done])
-
-    const Step = steps[stepIndex]
+    }, [done, onFinish, wizardState, setOpen])
 
     return (<Dialog open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
         {title && <DialogTitle>{title}</DialogTitle>}
-        {<Step
-            advance={handleAdvance}
-            wizardState={wizardState}
-            wizardDispatch={wizardStateDispatcher}
-            onCancel={handleCancel}
-            last={last}
-        />}
+        {React.createElement(steps[stepIndex],
+            {
+                advance: handleAdvance,
+                wizardState,
+                wizardDispatch: wizardStateDispatcher,
+                onCancel: handleCancel,
+                last
+            }
+        )}
     </Dialog>)
 }
 
 DialogWizard.propTypes = {
     open: PropTypes.bool.isRequired,
     setOpen: PropTypes.func.isRequired,
-    steps: PropTypes.arrayOf(PropTypes.element).isRequired,
+    steps: PropTypes.arrayOf(PropTypes.elementType).isRequired,
     title: PropTypes.string,
     initializerArg: PropTypes.any,
     initializer: PropTypes.func,

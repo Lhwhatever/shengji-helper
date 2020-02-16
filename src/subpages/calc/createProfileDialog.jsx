@@ -1,11 +1,9 @@
 import { Box, DialogContentText, makeStyles, MenuItem, TextField } from '@material-ui/core'
-import React, { useRef, useState } from 'react'
 import PropTypes from 'prop-types'
-
+import React, { useState } from 'react'
 import commonCls from '../../components/commonClasses'
 import DialogWizard, { asWizardStep } from '../../components/dialogWizard'
 import { NumOfPlayerField, SelectField } from '../../components/inputs'
-
 
 
 const useStyles = makeStyles(theme => ({
@@ -47,7 +45,7 @@ const BasicInfoStep = ({ state, dispatch }) => {
                 required
                 value={state.profileName}
                 error={state.profileNameError}
-                helperText={state.profileNameError ? "Enter a profile name." : null}
+                helperText={state.profileNameError ? 'Enter a profile name.' : null}
                 onChange={handleProfileNameFieldChange}
                 className={classes.profileNameField}
             />
@@ -65,6 +63,11 @@ const BasicInfoStep = ({ state, dispatch }) => {
             </Box>
         </Box>
     </>)
+}
+
+BasicInfoStep.propTypes = {
+    state: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired
 }
 
 const CreateProfileDialog = ({ open, setOpen, onFinish }) => {

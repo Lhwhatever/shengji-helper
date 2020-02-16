@@ -1,13 +1,13 @@
 
-import React from "react"
-import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
+import React from 'react'
+import PropTypes from 'prop-types'
+import { useStaticQuery, graphql } from 'gatsby'
 import { Container } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/core/styles'
 
-import Header from "./header"
+import Header from './header'
 import theme from '../theme'
-import "./layout.css"
+import './layout.css'
 
 const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`

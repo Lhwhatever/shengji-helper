@@ -1,15 +1,15 @@
-import React from "react"
 import { AppBar, makeStyles, Toolbar, Typography } from '@material-ui/core'
-import { InternalLink } from "./links";
+import React from 'react'
+import { InternalLink } from './links'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   root: {
     flexGrow: 1
   },
   appBar: {
     marginBottom: '1rem'
   }
-}));
+})
 
 const Header = () => {
   const classes = useStyles()

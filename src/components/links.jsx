@@ -1,11 +1,16 @@
-import React from 'react'
-import PropTypes from 'prop-types'
 import { Button, Link as MuiLink } from '@material-ui/core'
 import { Link as GatsbyLink } from 'gatsby'
+import PropTypes from 'prop-types'
+import React from 'react'
 
 const ButtonLinkBehavior = React.forwardRef(({ to, ...props }, ref) => (
     <GatsbyLink ref={ref} to={to} {...props} />
 ))
+
+ButtonLinkBehavior.displayName = 'ButtonLinkBehaviour'
+ButtonLinkBehavior.propTypes = {
+    to: PropTypes.string.isRequired
+}
 
 export const ButtonLink = ({ children, ...props }) => (
     <Button {...props} component={ButtonLinkBehavior}>
@@ -14,7 +19,6 @@ export const ButtonLink = ({ children, ...props }) => (
 )
 
 ButtonLink.propTypes = {
-    to: PropTypes.string.isRequired,
     children: PropTypes.node
 }
 
@@ -32,5 +36,6 @@ export const InternalLink = ({ children, color, ...props }) => (
 InternalLink.propTypes = {
     color: PropTypes.string,
     doUnderline: PropTypes.bool,
-    to: PropTypes.string.isRequired
+    to: PropTypes.string.isRequired,
+    children: PropTypes.node
 }

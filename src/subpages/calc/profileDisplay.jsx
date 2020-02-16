@@ -3,10 +3,10 @@ import { Delete, Done, Edit, ExpandLess, ExpandMore } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useRef, useState } from 'react'
 import Moment from 'react-moment'
-
 import commonCls from '../../components/commonClasses'
 import Emoji from '../../components/emoji'
 import SimplePlayerStatus from './simplePlayerStatus'
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -110,7 +110,8 @@ ProfileDisplay.propTypes = {
         numOfDecks: PropTypes.number.isRequired,
         players: SimplePlayerStatus.propTypes.players
     }).isRequired,
-    setProfileName: PropTypes.func
+    setProfileName: PropTypes.func,
+    deleteProfile: PropTypes.func.isRequired
 }
 
 export default ProfileDisplay

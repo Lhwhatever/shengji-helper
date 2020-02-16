@@ -20,6 +20,15 @@ const LevelDisplay = props => {
     return <span className={active ? classes.activeLevel : null}>{level}</span>
 }
 
+LevelDisplay.propTypes = {
+    active: PropTypes.bool,
+    level: PropTypes.number,
+    player: PropTypes.exact({
+        active: PropTypes.bool.isRequired,
+        level: PropTypes.number.isRequired
+    })
+}
+
 const SimplePlayerStatus = ({ partnership, players }) => {
     const classes = commonCls()
 
