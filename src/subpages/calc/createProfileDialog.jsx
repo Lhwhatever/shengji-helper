@@ -1,8 +1,11 @@
-import { Box, Dialog, DialogContent, DialogContentText, DialogTitle, makeStyles, MenuItem, TextField } from '@material-ui/core'
+import { Box, DialogContentText, makeStyles, MenuItem, TextField } from '@material-ui/core'
 import React, { useRef, useState } from 'react'
+import PropTypes from 'prop-types'
 
 import commonCls from '../../components/commonClasses'
-import { DeckPlanner, NumOfPlayerField, SelectField } from '../../components/inputs'
+import DialogWizard, { asWizardStep } from '../../components/dialogWizard'
+import { NumOfPlayerField, SelectField } from '../../components/inputs'
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -15,48 +18,101 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-
-const CreateProfileDialog = ({ open, setOpen, createProfile }) => {
+const BasicInfoStep = ({ state, dispatch }) => {
     const classes = { ...commonCls(), ...useStyles() }
 
     const FF = ['floating', 'fixed']
     const F1 = ['floating']
 
-    const profileNameFieldRef = useRef()
-    const [numOfPlayers, setNumOfPlayers] = useState(4)
     const [partnershipModeList, setPartnershipModeList] = useState(FF)
-    const [partnership, setPartnership] = useState('fixed')
 
     const handleNumOfPlayerChange = event => {
-        setNumOfPlayers(event.target.value)
+        dispatch('numOfPlayers', event.target.value)
         if (event.target.value % 2) {
             setPartnershipModeList(F1)
-            setPartnership('floating')
+            dispatch('partnershipMode', 'floating')
         } else setPartnershipModeList(FF)
     }
 
-    return (<Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
-        <DialogTitle>Create new profile</DialogTitle>
-        <DialogContent>
-            <DialogContentText>To create a new profile, fill in the following information.</DialogContentText>
-            <Box className={classes.vContainer}>
-                <TextField label="Profile Name" inputRef={profileNameFieldRef} className={classes.profileNameField} />
-                <Box className={classes.hContainer}>
-                    <NumOfPlayerField value={numOfPlayers} onChange={handleNumOfPlayerChange} />
-                    <Box ml={2} />
-                    <SelectField
-                        fullWidth
-                        label="Partnership"
-                        value={partnership}
-                        onChange={event => setPartnership(event.target.value)}
-                    >
-                        {partnershipModeList.map(e => <MenuItem key={e} value={e}><span className={classes.capitalize}>{e}</span></MenuItem>)}
-                    </SelectField>
-                </Box>
+    const handleProfileNameFieldChange = event => {
+        dispatch('profileName', event.target.value)
+        dispatch('profileNameError', !event.target.value)
+    }
+
+    return (<>
+        <DialogContentText>To create a new profile, fill in the following information.</DialogContentText>
+        <Box className={classes.vContainer}>
+            <TextField
+                label="Profile Name"
+                required
+                value={state.profileName}
+                error={state.profileNameError}
+                helperText={state.profileNameError ? "Enter a profile name." : null}
+                onChange={handleProfileNameFieldChange}
+                className={classes.profileNameField}
+            />
+            <Box className={classes.hContainer}>
+                <NumOfPlayerField value={state.numOfPlayers} onChange={handleNumOfPlayerChange} required />
+                <Box ml={2} />
+                <SelectField
+                    fullWidth required
+                    label="Partnership"
+                    value={state.partnershipMode}
+                    onChange={event => dispatch('setPartnershipMode', event.target.value)}
+                >
+                    {partnershipModeList.map(e => <MenuItem key={e} value={e}><span className={classes.capitalize}>{e}</span></MenuItem>)}
+                </SelectField>
             </Box>
-            <DeckPlanner numOfPlayers={numOfPlayers} fullWidth />
-        </DialogContent>
-    </Dialog>)
+        </Box>
+    </>)
+}
+
+const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
+    return (<DialogWizard
+        open={open} setOpen={setOpen}
+        title="Create new profile"
+        initializerArg={{}}
+        onFinish={onFinish}
+        steps={[
+            asWizardStep(
+                BasicInfoStep,
+                {
+                    validate(stepState) {
+                        if (stepState.profileName) return {}
+                        else return {
+                            error: 1,
+                            actionToFeedback: {
+                                type: 'set',
+                                key: 'profileNameError',
+                                value: true
+                            }
+                        }
+                    },
+                    onNext: stepState => ({
+                        type: 'merge',
+                        value: {
+                            name: stepState.profileName,
+                            numOfPlayers: stepState.numOfPlayers,
+                            partnership: stepState.partnershipMode
+                        }
+                    })
+                },
+                {
+                    profileName: '',
+                    profileNameError: false,
+                    numOfPlayers: 4,
+                    partnershipMode: 'fixed'
+                }
+            ),
+            asWizardStep(() => 'Hello')
+        ]}
+    />)
+}
+
+CreateProfileDialog.propTypes = {
+    open: PropTypes.bool.isRequired,
+    setOpen: PropTypes.func.isRequired,
+    onFinish: PropTypes.func
 }
 
 export default CreateProfileDialog

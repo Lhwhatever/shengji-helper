@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 
 const Calculator = () => {
     const classes = useStyles()
-    const [createProfileDialogOpen, setCreateProfileDialogOpen] = useState(false)
+    const [createProfileWizardOpen, setCreateProfileWizardOpen] = useState(false)
     const [deleteProfileDialogOpen, setDeleteProfileDialogOpen] = useState([null, null])
     const [profiles, profileDispatch] = useReducer((state, action) => {
         switch (action.type) {
@@ -47,7 +47,7 @@ const Calculator = () => {
             color="primary"
             className={classes.btn}
             startIcon={<Add />}
-            onClick={() => setCreateProfileDialogOpen(true)}
+            onClick={() => setCreateProfileWizardOpen(true)}
         >Create Profile</Button>
         <Button
             variant="contained"
@@ -59,7 +59,11 @@ const Calculator = () => {
         >
             Delete All
         </Button>
-        <CreateProfileDialog open={createProfileDialogOpen} setOpen={setCreateProfileDialogOpen} />
+        <CreateProfileDialog
+            open={createProfileWizardOpen}
+            setOpen={setCreateProfileWizardOpen}
+            onFinish={console.log}
+        />
         <DeleteDialog
             open={deleteProfileDialogOpen}
             setOpen={setDeleteProfileDialogOpen}
