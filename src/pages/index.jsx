@@ -60,7 +60,7 @@ const Links = ({ compact }) => {
 }
 
 Links.propTypes = {
-    compact: PropTypes.bool.isRequired
+    compact: PropTypes.bool
 }
 
 
