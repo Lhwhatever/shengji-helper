@@ -17,7 +17,8 @@ const useStyles = makeStyles(theme => ({
 const Planner = () => {
     const classes = useStyles()
 
-    const [numOfPlayers, setNumOfPlayers] = useState(null)
+    const [numOfPlayers, setNumOfPlayers] = useState('')
+    const [gameConfig, setGameConfig] = useState(null)
 
     const handleNumOfPlayerChange = event => {
         setNumOfPlayers(event.target.value)
@@ -30,7 +31,9 @@ const Planner = () => {
             value={numOfPlayers} onChange={handleNumOfPlayerChange}
             className={classes.numOfPlayerField}
         />
-        {numOfPlayers && <Box className={classes.deckPlanner}><DeckPlanner numOfPlayers={numOfPlayers} /></Box>}
+        {numOfPlayers && (<Box className={classes.deckPlanner}>
+            <DeckPlanner numOfPlayers={numOfPlayers} config={gameConfig} setConfig={setGameConfig} />
+        </Box>)}
     </Layout>)
 }
 

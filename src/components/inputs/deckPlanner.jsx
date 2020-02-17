@@ -1,6 +1,10 @@
 import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core'
+import { blueGrey } from '@material-ui/core/colors'
+import { Done } from '@material-ui/icons'
+import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import React from 'react'
+import commonCls from '../commonClasses'
 
 const CARDS_PER_DECK = 54
 const MIN_SPARE_RATIO = 0.2
@@ -12,22 +16,33 @@ const useStyles = makeStyles(theme => ({
             paddingTop: props => theme.spacing(props.dense ? 0.75 : 2),
             paddingBottom: props => theme.spacing(props.dense ? 0.75 : 2),
             paddingLeft: theme.spacing(2),
-            paddingRight: props => theme.spacing(props.dense ? 3 : 2),
+            paddingRight: theme.spacing(2),
             textAlign: 'center',
-        },
-        '& td:last-child, & th:last-child': {
-            paddingRight: theme.spacing(2)
         },
         '& table': {
             marginBottom: theme.spacing(0)
         }
     },
     thead: {
+        backgroundColor: theme.palette.primary.main,
         '& th': {
-            textAlign: 'center'
+            color: theme.palette.primary.contrastText
         }
+    },
+    tick: {
+        display: 'flex',
+        flex: '1 1 0',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    clickable: {
+        cursor: 'pointer'
+    },
+    selected: {
+        backgroundColor: blueGrey[50]
     }
 }))
+
 
 const getRowData = numOfPlayers => {
     const rowData = []
@@ -53,14 +68,47 @@ const getRowData = numOfPlayers => {
     return rowData
 }
 
-const DeckPlanner = ({ numOfPlayers, ...props }) => {
-    const classes = useStyles(props)
+const configsEqual = (x, y) => (
+    x && y && x.decks === y.decks && x.totalCards === y.totalCards &&
+    x.cardsPerPlayer === y.cardsPerPlayer && x.spareCards === y.spareCards
+)
+
+const tick = <Done style={{ fontSize: 16 }} />
+
+const DeckPlannerRow = ({ row, config, ...props }) => {
+    const classes = { ...commonCls(), ...useStyles() }
+    const active = configsEqual(row, config)
+
+    return (<TableRow {...props} className={clsx(classes.clickable, active ? classes.selected : null)}>
+        <TableCell><span className={classes.tick}>{active && tick}</span></TableCell>
+        <TableCell>{row.decks}</TableCell>
+        <TableCell>{row.totalCards}</TableCell>
+        <TableCell>{row.cardsPerPlayer}</TableCell>
+        <TableCell>{row.spareCards}</TableCell>
+    </TableRow>)
+}
+
+DeckPlannerRow.propTypes = {
+    row: PropTypes.exact({
+        decks: PropTypes.number.isRequired,
+        totalCards: PropTypes.number.isRequired,
+        cardsPerPlayer: PropTypes.number.isRequired,
+        spareCards: PropTypes.number.isRequired
+    }).isRequired,
+    config: PropTypes.object
+}
+
+const DeckPlanner = ({ config, setConfig, numOfPlayers, ...props }) => {
+    const classes = { ...commonCls(), ...useStyles(props) }
     const rowData = getRowData(numOfPlayers)
 
     return (<TableContainer component={Paper} className={classes.table}>
         <Table aria-label="table of decks">
-            <TableHead align="center">
+            <TableHead align="center" className={classes.thead}>
                 <TableRow>
+                    <TableCell align="center">
+                        <span className={clsx(classes.tick, classes.invisible)}>{tick}</span>
+                    </TableCell>
                     <TableCell>Decks</TableCell>
                     <TableCell>Total Cards</TableCell>
                     <TableCell>Cards per Player</TableCell>
@@ -68,12 +116,9 @@ const DeckPlanner = ({ numOfPlayers, ...props }) => {
                 </TableRow>
             </TableHead>
             <TableBody>{
-                rowData.map((row, i) => <TableRow key={i}>
-                    <TableCell>{row.decks}</TableCell>
-                    <TableCell>{row.totalCards}</TableCell>
-                    <TableCell>{row.cardsPerPlayer}</TableCell>
-                    <TableCell>{row.spareCards}</TableCell>
-                </TableRow>)
+                rowData.map(
+                    (row, i) => <DeckPlannerRow row={row} config={config} key={i} onClick={() => setConfig(row)} />
+                )
             }</TableBody>
         </Table>
     </TableContainer>)
@@ -81,7 +126,14 @@ const DeckPlanner = ({ numOfPlayers, ...props }) => {
 
 DeckPlanner.propTypes = {
     numOfPlayers: PropTypes.number.isRequired,
-    dense: PropTypes.bool
+    dense: PropTypes.bool,
+    config: PropTypes.exact({
+        decks: PropTypes.number.isRequired,
+        totalCards: PropTypes.number.isRequired,
+        cardsPerPlayer: PropTypes.number.isRequired,
+        spareCards: PropTypes.number.isRequired
+    }),
+    setConfig: PropTypes.func.isRequired
 }
 
 export default DeckPlanner

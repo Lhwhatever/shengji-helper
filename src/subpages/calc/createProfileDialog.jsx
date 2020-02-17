@@ -69,7 +69,7 @@ BasicInfoStep.propTypes = asWizardStepStepPropTypes
 const DeckPlanningStep = ({ state, dispatch }) => {
     return (<>
         <DialogContentText>Select one of the following deck configurations by clicking/tapping on it.</DialogContentText>
-        <DeckPlanner numOfPlayers={state.numOfPlayers} dense />
+        <DeckPlanner numOfPlayers={state.numOfPlayers} config={state.config} setConfig={config => dispatch('config', config)} dense />
     </>)
 }
 
@@ -116,7 +116,8 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                 DeckPlanningStep, 'Decide on the number of decks.',
                 {
                     setup: wizardState => ({
-                        numOfPlayers: wizardState.numOfPlayers
+                        numOfPlayers: wizardState.numOfPlayers,
+                        config: wizardState.config,
                     })
                 }
             )
