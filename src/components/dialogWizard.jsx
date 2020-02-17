@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, useMediaQuery, useTheme, IconButton } from '@material-ui/core'
 import { Close, Done, NavigateBefore, NavigateNext } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
@@ -6,7 +6,7 @@ import { HExpander } from './structs'
 
 
 export const asWizardStep = (Step, actions = {}) => {
-    function WizardStep({ advance, retreat, first, last, onCancel, wizardState, wizardDispatch }) {
+    function WizardStep({ advance, retreat, first, last, onCancel, wizardState, wizardDispatch, mobile }) {
 
         const [stepState, stepDispatch] = useReducer(
             (state, action) => {
@@ -42,7 +42,8 @@ export const asWizardStep = (Step, actions = {}) => {
                 />
             </DialogContent>
             <DialogActions>
-                <Button color="primary" endIcon={<Close />} onClick={onCancel}>Quit</Button>
+                {mobile}
+                {mobile || <Button color="primary" endIcon={<Close />} onClick={onCancel}>Quit</Button>}
                 <HExpander />
                 <Button startIcon={<NavigateBefore />} onClick={retreat}
                     color="primary" disabled={first}
@@ -59,6 +60,7 @@ export const asWizardStep = (Step, actions = {}) => {
         retreat: PropTypes.func.isRequired,
         first: PropTypes.bool.isRequired,
         last: PropTypes.bool.isRequired,
+        mobile: PropTypes.bool.isRequired,
         onCancel: PropTypes.func.isRequired,
         wizardState: PropTypes.any.isRequired,
         wizardDispatch: PropTypes.func.isRequired
@@ -98,6 +100,9 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
         }
     }, initializerArg, initializer)
 
+    const theme = useTheme()
+    const mobile = useMediaQuery(theme.breakpoints.down('xs'))
+
     const last = stepIndex === steps.length - 1
 
     const handleCancel = () => {
@@ -120,8 +125,11 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
         }
     }, [done, onFinish, wizardState, setOpen])
 
-    return (<Dialog open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
-        {title && <DialogTitle>{title}</DialogTitle>}
+    return (<Dialog fullScreen={mobile} open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
+        {mobile ?
+            <DialogTitle><IconButton aria-label="quit" onClick={handleCancel}><Close /></IconButton>{title || 'Quit'}</DialogTitle> :
+            (title && <DialogTitle>{title}</DialogTitle>)
+        }
         {React.createElement(steps[stepIndex],
             {
                 advance: handleAdvance,
@@ -130,7 +138,8 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
                 wizardDispatch: wizardStateDispatcher,
                 onCancel: handleCancel,
                 first: stepIndex === 0,
-                last
+                last,
+                mobile
             }
         )}
     </Dialog>)
