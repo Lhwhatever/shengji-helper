@@ -1,13 +1,54 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, useMediaQuery, useTheme, IconButton } from '@material-ui/core'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MobileStepper, Step, StepLabel, Stepper, useMediaQuery, useTheme } from '@material-ui/core'
 import { Close, Done, NavigateBefore, NavigateNext } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
+import commonCls from './commonClasses'
 import { HExpander } from './structs'
 
+const PrevButton = ({ first, onClick }) => (
+    <Button startIcon={<NavigateBefore />} onClick={onClick} color="primary" disabled={first}>
+        Back
+    </Button>
+)
 
-export const asWizardStep = (Step, actions = {}) => {
-    function WizardStep({ advance, retreat, first, last, onCancel, wizardState, wizardDispatch, mobile }) {
+PrevButton.propTypes = {
+    first: PropTypes.bool,
+    onClick: PropTypes.func.isRequired
+}
 
+const NextButton = ({ last, onClick }) => (
+    <Button endIcon={last ? <Done /> : <NavigateNext />} onClick={onClick}
+        color="primary" variant="contained"
+    >{last ? 'Finish' : 'Next'}</Button>
+)
+
+NextButton.propTypes = {
+    last: PropTypes.bool,
+    onClick: PropTypes.func.isRequired
+}
+
+const MobileWizardButtons = ({ stepIndex, numOfSteps, prevButton, nextButton }) => {
+    const classes = commonCls()
+    return (<MobileStepper
+        variant="dots"
+        activeStep={stepIndex}
+        steps={numOfSteps}
+        position="static"
+        className={classes.hExpand}
+        backButton={prevButton}
+        nextButton={nextButton}
+    />)
+}
+
+MobileWizardButtons.propTypes = {
+    stepIndex: PropTypes.number.isRequired,
+    numOfSteps: PropTypes.number.isRequired,
+    prevButton: PropTypes.node.isRequired,
+    nextButton: PropTypes.node.isRequired
+}
+
+export const asWizardStep = (Step, label, actions = {}) => {
+    function WizardStep(props) {
         const [stepState, stepDispatch] = useReducer(
             (state, action) => {
                 switch (action.type) {
@@ -18,7 +59,7 @@ export const asWizardStep = (Step, actions = {}) => {
                     default:
                         throw new Error(`Unknown action type ${action.type}.`)
                 }
-            }, ...(actions.setup ? [wizardState, actions.setup] : [])
+            }, ...(actions.setup ? [props.wizardState, actions.setup] : [])
         )
 
         const handleNext = () => {
@@ -30,10 +71,13 @@ export const asWizardStep = (Step, actions = {}) => {
                         return
                     }
                 }
-                wizardDispatch(actions.onNext(stepState))
+                props.wizardDispatch(actions.onNext(stepState))
             }
-            advance()
+            props.advance()
         }
+
+        const ThePrevButton = <PrevButton first={props.stepIndex === 0} onClick={props.retreat} />
+        const TheNextButton = <NextButton last={props.last} onClick={handleNext} />
 
         return (<>
             <DialogContent>
@@ -42,15 +86,17 @@ export const asWizardStep = (Step, actions = {}) => {
                 />
             </DialogContent>
             <DialogActions>
-                {mobile}
-                {mobile || <Button color="primary" endIcon={<Close />} onClick={onCancel}>Quit</Button>}
-                <HExpander />
-                <Button startIcon={<NavigateBefore />} onClick={retreat}
-                    color="primary" disabled={first}
-                >Previous</Button>
-                <Button endIcon={last ? <Done /> : <NavigateNext />} onClick={handleNext}
-                    color="primary" variant="contained"
-                >{last ? 'Finish' : 'Next'}</Button>
+                {props.mobile ?
+                    <MobileWizardButtons
+                        stepIndex={props.stepIndex} numOfSteps={props.numOfSteps}
+                        prevButton={ThePrevButton} nextButton={TheNextButton}
+                    /> :
+                    (<>
+                        <Button color="primary" endIcon={<Close />} onClick={props.onCancel}>Quit</Button>
+                        <HExpander />
+                        {ThePrevButton}{TheNextButton}
+                    </>)
+                }
             </DialogActions>
         </>)
     }
@@ -58,13 +104,16 @@ export const asWizardStep = (Step, actions = {}) => {
     WizardStep.propTypes = {
         advance: PropTypes.func.isRequired,
         retreat: PropTypes.func.isRequired,
-        first: PropTypes.bool.isRequired,
+        stepIndex: PropTypes.number.isRequired,
+        numOfSteps: PropTypes.number.isRequired,
         last: PropTypes.bool.isRequired,
         mobile: PropTypes.bool.isRequired,
         onCancel: PropTypes.func.isRequired,
         wizardState: PropTypes.any.isRequired,
         wizardDispatch: PropTypes.func.isRequired
     }
+
+    WizardStep.stepLabel = label
 
     return WizardStep
 }
@@ -100,10 +149,11 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
         }
     }, initializerArg, initializer)
 
-    const theme = useTheme()
-    const mobile = useMediaQuery(theme.breakpoints.down('xs'))
 
     const last = stepIndex === steps.length - 1
+
+    const theme = useTheme()
+    const mobile = useMediaQuery(theme.breakpoints.down('xs'))
 
     const handleCancel = () => {
         setOpen(false)
@@ -130,6 +180,9 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
             <DialogTitle><IconButton aria-label="quit" onClick={handleCancel}><Close /></IconButton>{title || 'Quit'}</DialogTitle> :
             (title && <DialogTitle>{title}</DialogTitle>)
         }
+        {mobile || <Stepper activeStep={stepIndex} alternativeLabel>
+            {steps.map(step => <Step key={step.stepLabel}><StepLabel>{step.stepLabel}</StepLabel></Step>)}
+        </Stepper>}
         {React.createElement(steps[stepIndex],
             {
                 advance: handleAdvance,
@@ -137,9 +190,10 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
                 wizardState,
                 wizardDispatch: wizardStateDispatcher,
                 onCancel: handleCancel,
-                first: stepIndex === 0,
-                last,
-                mobile
+                stepIndex,
+                numOfSteps: steps.length,
+                mobile,
+                last
             }
         )}
     </Dialog>)

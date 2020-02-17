@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import React, { useState } from 'react'
 import commonCls from '../../components/commonClasses'
 import DialogWizard, { asWizardStep, asWizardStepStepPropTypes } from '../../components/dialogWizard'
-import { NumOfPlayerField, SelectField, DeckPlanner } from '../../components/inputs'
+import { DeckPlanner, NumOfPlayerField, SelectField } from '../../components/inputs'
 
 
 const useStyles = makeStyles(theme => ({
@@ -83,7 +83,7 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
         onFinish={onFinish}
         steps={[
             asWizardStep(
-                BasicInfoStep,
+                BasicInfoStep, 'Set the game mode and number of players.',
                 {
                     validate(stepState) {
                         if (stepState.profileName) return {}
@@ -113,7 +113,7 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                 }
             ),
             asWizardStep(
-                DeckPlanningStep,
+                DeckPlanningStep, 'Decide on the number of decks.',
                 {
                     setup: wizardState => ({
                         numOfPlayers: wizardState.numOfPlayers
