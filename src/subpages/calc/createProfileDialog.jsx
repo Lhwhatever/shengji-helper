@@ -2,8 +2,8 @@ import { Box, DialogContentText, makeStyles, MenuItem, TextField } from '@materi
 import PropTypes from 'prop-types'
 import React, { useState } from 'react'
 import commonCls from '../../components/commonClasses'
-import DialogWizard, { asWizardStep } from '../../components/dialogWizard'
-import { NumOfPlayerField, SelectField } from '../../components/inputs'
+import DialogWizard, { asWizardStep, asWizardStepStepPropTypes } from '../../components/dialogWizard'
+import { NumOfPlayerField, SelectField, DeckPlanner } from '../../components/inputs'
 
 
 const useStyles = makeStyles(theme => ({
@@ -19,17 +19,14 @@ const useStyles = makeStyles(theme => ({
 const BasicInfoStep = ({ state, dispatch }) => {
     const classes = { ...commonCls(), ...useStyles() }
 
-    const FF = ['floating', 'fixed']
-    const F1 = ['floating']
-
-    const [partnershipModeList, setPartnershipModeList] = useState(FF)
+    const [fixedPartnershipAllowed, setFixedPartnershipAllowed] = useState(true)
 
     const handleNumOfPlayerChange = event => {
         dispatch('numOfPlayers', event.target.value)
         if (event.target.value % 2) {
-            setPartnershipModeList(F1)
+            setFixedPartnershipAllowed(false)
             dispatch('partnershipMode', 'floating')
-        } else setPartnershipModeList(FF)
+        } else setFixedPartnershipAllowed(true)
     }
 
     const handleProfileNameFieldChange = event => {
@@ -56,19 +53,27 @@ const BasicInfoStep = ({ state, dispatch }) => {
                     fullWidth required
                     label="Partnership"
                     value={state.partnershipMode}
-                    onChange={event => dispatch('setPartnershipMode', event.target.value)}
+                    onChange={event => dispatch('partnershipMode', event.target.value)}
                 >
-                    {partnershipModeList.map(e => <MenuItem key={e} value={e}><span className={classes.capitalize}>{e}</span></MenuItem>)}
+                    <MenuItem value="floating">Floating</MenuItem>
+                    {fixedPartnershipAllowed &&
+                        <MenuItem value="fixed">Fixed</MenuItem>}
                 </SelectField>
             </Box>
         </Box>
     </>)
 }
 
-BasicInfoStep.propTypes = {
-    state: PropTypes.object.isRequired,
-    dispatch: PropTypes.func.isRequired
+BasicInfoStep.propTypes = asWizardStepStepPropTypes
+
+const DeckPlanningStep = ({ state, dispatch }) => {
+    return (<>
+        <DialogContentText>Select one of the following deck configurations by clicking/tapping on it.</DialogContentText>
+        <DeckPlanner numOfPlayers={state.numOfPlayers} dense />
+    </>)
 }
+
+DeckPlanningStep.propTypes = asWizardStepStepPropTypes
 
 const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
     return (<DialogWizard
@@ -98,16 +103,23 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                             numOfPlayers: stepState.numOfPlayers,
                             partnership: stepState.partnershipMode
                         }
+                    }),
+                    setup: wizardState => ({
+                        profileName: wizardState.name || '',
+                        profileNameError: false,
+                        numOfPlayers: wizardState.numOfPlayers || 4,
+                        partnershipMode: wizardState.partnership || 'fixed'
                     })
-                },
-                {
-                    profileName: '',
-                    profileNameError: false,
-                    numOfPlayers: 4,
-                    partnershipMode: 'fixed'
                 }
             ),
-            asWizardStep(() => 'Hello')
+            asWizardStep(
+                DeckPlanningStep,
+                {
+                    setup: wizardState => ({
+                        numOfPlayers: wizardState.numOfPlayers
+                    })
+                }
+            )
         ]}
     />)
 }
