@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core'
 
-const commonCls = makeStyles({
+export const commonStyles = {
     vContainer: {
         display: 'flex',
         flexDirection: 'column'
@@ -11,7 +11,11 @@ const commonCls = makeStyles({
     },
     invisible: {
         opacity: 0
+    },
+    hExpand: {
+        flex: '1 0 0'
     }
-})
+}
 
+const commonCls = makeStyles(commonStyles)
 export default commonCls
