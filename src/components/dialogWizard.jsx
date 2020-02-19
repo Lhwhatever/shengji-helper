@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
 import commonCls from './commonClasses'
 import { HExpander } from './structs'
+import setMember from '../helper/setMember'
 
 const PrevButton = ({ first, onClick }) => (
     <Button startIcon={<NavigateBefore />} onClick={onClick} color="primary" disabled={first}>
@@ -52,8 +53,12 @@ export const asWizardStep = (Step, label, actions = {}) => {
         const [stepState, stepDispatch] = useReducer(
             (state, action) => {
                 switch (action.type) {
-                    case 'set':
+                    case 'set': {
+                        if (action.key instanceof Array)
+                            return setMember(state, action.key, action.value)
+
                         return { ...state, [action.key]: action.value }
+                    }
                     case 'merge':
                         return { ...state, ...action.value }
                     default:
