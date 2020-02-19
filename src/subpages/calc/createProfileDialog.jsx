@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import commonCls from '../../components/commonClasses'
 import DialogWizard, { asWizardStep, asWizardStepStepPropTypes } from '../../components/dialogWizard'
 import { DeckPlanner, NumOfPlayerField, SelectField } from '../../components/inputs'
+import { LevelInput } from '../../components/inputs/levels'
 
 
 const useStyles = makeStyles(theme => ({
@@ -13,6 +14,23 @@ const useStyles = makeStyles(theme => ({
     },
     capitalize: {
         textTransform: 'capitalize'
+    },
+    levelField: {
+        width: 125
+    },
+    fixedPartnershipNaming: {
+        display: 'flex'
+    },
+    nicknameField: {
+        minWidth: 170
+    },
+    playerSetting: {
+        minWidth: 300,
+        marginBottom: theme.spacing(3)
+    },
+    settingsContainer: {
+        display: 'flex',
+        flexWrap: 'wrap'
     }
 }))
 
@@ -81,10 +99,67 @@ const DeckPlanningStep = ({ state, dispatch }) => {
 
 DeckPlanningStep.propTypes = asWizardStepStepPropTypes
 
+const PlayerSetting = ({ player, set, index }) => {
+    const classes = useStyles()
+    const handleNameChange = event => {
+        if (event.target.value.length <= 4) {
+            set('name', event.target.value)
+        }
+    }
+
+    return (<Box mb={1}>
+        <TextField required
+            label={`Player ${index} Nickname`}
+            value={player.name}
+            onChange={handleNameChange}
+            className={classes.nicknameField}
+        />
+        <LevelInput required
+            label="Starting Level"
+            value={player.level}
+            onChange={event => set('level', event.target.value)}
+            className={classes.levelField}
+        />
+    </Box>)
+}
+
+PlayerSetting.propTypes = {
+    player: PropTypes.exact({
+        name: PropTypes.string,
+        level: PropTypes.number.isRequired
+    }).isRequired,
+    set: PropTypes.func.isRequired,
+    index: PropTypes.number.isRequired
+}
+
 const PlayerNamingStep = ({ state, dispatch }) => {
+    const classes = useStyles()
+
+    const PlayerSettingWrapped = (player, i) => (<PlayerSetting
+        key={i} player={player} index={i + 1}
+        set={(key, value) => dispatch(['players', i, key], value)}
+    />)
+
     return (<>
         <DialogContentText>Set the nicknames of the players. Nicknames should be unique and be at most 4 characters long.</DialogContentText>
+        <Box className={classes.settingsContainer}>
+            {state.partnership === 'floating' ?
+                state.players.map((player, i) => PlayerSettingWrapped(player, i)) :
+                [0, 1].map(i => (<Box className={classes.playerSetting} key={i}>
+                    <Typography variant="h6">Team {i + 1}</Typography>
+                    {state.players.map((player, j) => (j % 2 === i ? PlayerSettingWrapped(player, j) : null))}
+                </Box>))
+            }
+        </Box>
     </>)
+}
+
+PlayerNamingStep.propTypes = {
+    state: PropTypes.exact({
+        players: PropTypes.arrayOf(PlayerSetting.propTypes.player).isRequired,
+        partnership: PropTypes.oneOf(['fixed', 'floating'])
+    }).isRequired,
+    dispatch: PropTypes.func.isRequired
 }
 
 const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
@@ -158,9 +233,11 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                 PlayerNamingStep, 'Set the nickname of the players.',
                 {
                     setup: wizardState => ({
-                        numOfPlayers: wizardState.numOfPlayers,
-                        partnership: wizardState.partnership
-                    })
+                        partnership: wizardState.partnership,
+                        players: wizardState.players || (new Array(wizardState.numOfPlayers).fill({
+                            name: '', level: 2
+                        }))
+                    }),
                 }
             )
         ]}

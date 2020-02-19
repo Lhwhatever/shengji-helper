@@ -1,9 +1,10 @@
-export default function setMember(obj, keys, value) {
-    let o = obj
+export default function setMember(obj, keys, value, deepCopy = false) {
+    let o = deepCopy ? JSON.parse(JSON.stringify(obj)) : obj
+    let x = o
     let iLast = keys.length - 1
 
-    for (let i = 0; i < iLast; ++i) o = o[keys[i]]
+    for (let i = 0; i < iLast; ++i) x = x[keys[i]]
 
-    o[keys[iLast]] = value
-    return obj
+    x[keys[iLast]] = value
+    return o
 }

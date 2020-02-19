@@ -2,9 +2,9 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, 
 import { Close, Done, NavigateBefore, NavigateNext } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
+import setMember from '../helper/setMember'
 import commonCls from './commonClasses'
 import { HExpander } from './structs'
-import setMember from '../helper/setMember'
 
 const PrevButton = ({ first, onClick }) => (
     <Button startIcon={<NavigateBefore />} onClick={onClick} color="primary" disabled={first}>
@@ -55,7 +55,7 @@ export const asWizardStep = (Step, label, actions = {}) => {
                 switch (action.type) {
                     case 'set': {
                         if (action.key instanceof Array)
-                            return setMember(state, action.key, action.value)
+                            return setMember(state, action.key, action.value, true)
 
                         return { ...state, [action.key]: action.value }
                     }
