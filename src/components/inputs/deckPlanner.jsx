@@ -23,10 +23,14 @@ const useStyles = makeStyles(theme => ({
             marginBottom: theme.spacing(0)
         }
     },
-    thead: {
-        backgroundColor: theme.palette.primary.main,
-        '& th': {
-            color: theme.palette.primary.contrastText
+    thead(props) {
+        const palette = props.error ? theme.palette.error : theme.palette.primary
+
+        return {
+            backgroundColor: palette.main,
+            '& th': {
+                color: palette.contrastText
+            }
         }
     },
     tick: {
@@ -133,7 +137,8 @@ DeckPlanner.propTypes = {
         cardsPerPlayer: PropTypes.number.isRequired,
         spareCards: PropTypes.number.isRequired
     }),
-    setConfig: PropTypes.func.isRequired
+    setConfig: PropTypes.func.isRequired,
+    error: PropTypes.bool
 }
 
 export default DeckPlanner

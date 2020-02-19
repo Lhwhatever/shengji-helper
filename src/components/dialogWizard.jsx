@@ -63,7 +63,7 @@ export const asWizardStep = (Step, label, actions = {}) => {
         )
 
         const handleNext = () => {
-            if (actions && actions.onNext) {
+            if (actions) {
                 if (actions.validate) {
                     const { error, actionToFeedback } = actions.validate(stepState)
                     if (error) {
@@ -71,7 +71,8 @@ export const asWizardStep = (Step, label, actions = {}) => {
                         return
                     }
                 }
-                props.wizardDispatch(actions.onNext(stepState))
+
+                if (actions.onNext) props.wizardDispatch(actions.onNext(stepState))
             }
             props.advance()
         }

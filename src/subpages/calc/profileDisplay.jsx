@@ -8,7 +8,6 @@ import Emoji from '../../components/emoji'
 import SimplePlayerStatus from './simplePlayerStatus'
 
 
-
 const useStyles = makeStyles(theme => ({
     profileNameField: {
         marginBottom: theme.spacing(2),
@@ -70,7 +69,7 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
             </Box>
             <Box className={classes.cardRow}>
                 <Emoji code="flower_playing_cards" mr={1} />
-                <Typography variant="body2">{profile.numOfDecks} decks</Typography>
+                <Typography variant="body2">{profile.config.decks} decks ({profile.config.perPlayer} per player, {profile.config.spares} spare)</Typography>
             </Box>
             <Box className={classes.cardRow}>
                 <Emoji code="busts_in_silhouette" mr={1} />
@@ -107,8 +106,12 @@ ProfileDisplay.propTypes = {
         uuid: PropTypes.string.isRequired,
         lastUsed: PropTypes.instanceOf(Date).isRequired,
         partnership: PropTypes.oneOf(['fixed', 'floating']).isRequired,
-        numOfDecks: PropTypes.number.isRequired,
-        players: SimplePlayerStatus.propTypes.players
+        players: SimplePlayerStatus.propTypes.players,
+        config: PropTypes.exact({
+            decks: PropTypes.number.isRequired,
+            perPlayer: PropTypes.number.isRequired,
+            spares: PropTypes.number.isRequired
+        }).isRequired
     }).isRequired,
     setProfileName: PropTypes.func,
     deleteProfile: PropTypes.func.isRequired

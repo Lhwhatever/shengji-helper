@@ -1,4 +1,4 @@
-import { Box, DialogContentText, makeStyles, MenuItem, TextField } from '@material-ui/core'
+import { Box, DialogContentText, makeStyles, MenuItem, TextField, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React, { useState } from 'react'
 import commonCls from '../../components/commonClasses'
@@ -67,13 +67,25 @@ const BasicInfoStep = ({ state, dispatch }) => {
 BasicInfoStep.propTypes = asWizardStepStepPropTypes
 
 const DeckPlanningStep = ({ state, dispatch }) => {
+    const onSelect = config => {
+        dispatch('config', config)
+        dispatch('error', false)
+    }
+
     return (<>
-        <DialogContentText>Select one of the following deck configurations by clicking/tapping on it.</DialogContentText>
-        <DeckPlanner numOfPlayers={state.numOfPlayers} config={state.config} setConfig={config => dispatch('config', config)} dense />
+        <DialogContentText>Select one of the following deck configurations.</DialogContentText>
+        {state.error && <Typography variant="body1" color="error">You must select a deck configuration! Tap or click on the desired row.</Typography>}
+        <DeckPlanner numOfPlayers={state.numOfPlayers} config={state.config} setConfig={onSelect} dense error={state.error} />
     </>)
 }
 
 DeckPlanningStep.propTypes = asWizardStepStepPropTypes
+
+const PlayerNamingStep = ({ state, dispatch }) => {
+    return (<>
+        <DialogContentText>Set the nicknames of the players. Nicknames should be unique and be at most 4 characters long.</DialogContentText>
+    </>)
+}
 
 const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
     return (<DialogWizard
@@ -118,6 +130,36 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                     setup: wizardState => ({
                         numOfPlayers: wizardState.numOfPlayers,
                         config: wizardState.config,
+                    }),
+                    validate(stepState) {
+                        if (stepState.config) return {}
+                        else return {
+                            error: 1,
+                            actionToFeedback: {
+                                type: 'set',
+                                key: 'error',
+                                value: true
+                            }
+                        }
+                    },
+                    onNext: stepState => ({
+                        type: 'merge',
+                        value: {
+                            config: {
+                                decks: stepState.config.decks,
+                                perPlayer: stepState.config.cardsPerPlayer,
+                                spares: stepState.config.spareCards
+                            }
+                        }
+                    })
+                }
+            ),
+            asWizardStep(
+                PlayerNamingStep, 'Set the nickname of the players.',
+                {
+                    setup: wizardState => ({
+                        numOfPlayers: wizardState.numOfPlayers,
+                        partnership: wizardState.partnership
                     })
                 }
             )
