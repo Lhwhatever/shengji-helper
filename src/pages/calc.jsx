@@ -7,6 +7,7 @@ import Layout from '../components/layout'
 import { loadProfiles, saveProfiles } from '../helper/profiles'
 import CreateProfileDialog from '../subpages/calc/createProfileDialog'
 import ProfileDisplay from '../subpages/calc/profileDisplay'
+import { v4 as uuidv4 } from 'uuid'
 
 const useStyles = makeStyles(theme => ({
     btn: {
@@ -28,6 +29,8 @@ const Calculator = () => {
                 newProfiles[i].name = action.value
                 return newProfiles
             }
+            case 'createProfile':
+                return [...state, { ...action.value, uuid: uuidv4(), date: new Date() }]
             case 'deleteProfile':
                 return (action.key === '') ? [] : state.filter(profile => profile.uuid !== action.key)
             default:
@@ -62,7 +65,7 @@ const Calculator = () => {
         <CreateProfileDialog
             open={createProfileWizardOpen}
             setOpen={setCreateProfileWizardOpen}
-            onFinish={console.log}
+            onFinish={newProfile => profileDispatch({ type: 'createProfile', value: newProfile })}
         />
         <DeleteDialog
             open={deleteProfileDialogOpen}

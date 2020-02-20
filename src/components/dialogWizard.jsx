@@ -181,14 +181,18 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
         () => { setDone(true) } :
         () => { setStepIndex(stepIndex + 1) }
 
+
+    // This useEffect exists because I don't want to calculate the result of the last
+    // dispatch (for setting state). More convenient to wait until the next render, when
+    // state has been updated, before running all the onFinish actions.
     useEffect(() => {
         if (done) {
-            if (onFinish) onFinish(wizardState)
+            if (onFinish) onFinish(wizardState, wizardStateDispatcher)
             setOpen(false)
             setStepIndex(0)
             setDone(false)
         }
-    }, [done, onFinish, wizardState, setOpen])
+    }, [done, onFinish, wizardState, wizardStateDispatcher, setOpen])
 
     return (<Dialog fullScreen={mobile} open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
         {mobile ?

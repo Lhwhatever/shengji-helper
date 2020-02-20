@@ -208,11 +208,18 @@ PlayerNamingStep.propTypes = {
 }
 
 const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
+    const handleFinish = (wizardState, wizardStateDispatcher) => {
+        // eslint-disable-next-line no-unused-vars
+        const { numOfPlayers, ...profile } = wizardState
+        onFinish(profile)
+        wizardStateDispatcher({ type: 'reset' })
+    }
+
     return (<DialogWizard
         open={open} setOpen={setOpen}
         title="Create new profile"
         initializerArg={{}}
-        onFinish={onFinish}
+        onFinish={handleFinish}
         steps={[
             asWizardStep(
                 BasicInfoStep, 'Set the game mode and number of players.',
