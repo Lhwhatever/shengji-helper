@@ -59,6 +59,15 @@ export const asWizardStep = (Step, label, actions = {}) => {
 
                         return { ...state, [action.key]: action.value }
                     }
+                    case 'setm': {
+                        let workingState = JSON.parse(JSON.stringify(state))
+                        for (const [key, value] of action.value) {
+                            if (key instanceof Array)
+                                setMember(workingState, key, value)
+                            else workingState[key] = value
+                        }
+                        return workingState
+                    }
                     case 'merge':
                         return { ...state, ...action.value }
                     default:

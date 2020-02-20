@@ -99,20 +99,36 @@ const DeckPlanningStep = ({ state, dispatch }) => {
 
 DeckPlanningStep.propTypes = asWizardStepStepPropTypes
 
-const PlayerSetting = ({ player, set, index }) => {
+const PlayerSetting = ({ player, set, index, validateUnique }) => {
     const classes = useStyles()
     const handleNameChange = event => {
+        set('errorblank', !event.target.value.trim())
+        set('errordupe', 0)
+
         if (event.target.value.length <= 4) {
             set('name', event.target.value)
         }
     }
+
+    const handleNameUnfocus = () => {
+        const trimmedName = player.name.trim()
+        set('name', trimmedName)
+        validateUnique(trimmedName)
+    }
+
+    const hasDupeError = !!player.errordupe
 
     return (<Box mb={1}>
         <TextField required
             label={`Player ${index} Nickname`}
             value={player.name}
             onChange={handleNameChange}
+            onBlur={handleNameUnfocus}
             className={classes.nicknameField}
+            error={player.errorblank || hasDupeError}
+            helperText={player.errorblank ?
+                'Nickname cannot be blank!' :
+                (hasDupeError && 'Nicknames cannot be duplicates.')}
         />
         <LevelInput required
             label="Starting Level"
@@ -126,18 +142,46 @@ const PlayerSetting = ({ player, set, index }) => {
 PlayerSetting.propTypes = {
     player: PropTypes.exact({
         name: PropTypes.string,
-        level: PropTypes.number.isRequired
+        level: PropTypes.number.isRequired,
+        errorblank: PropTypes.bool,
+        errordupe: PropTypes.number
     }).isRequired,
     set: PropTypes.func.isRequired,
-    index: PropTypes.number.isRequired
+    index: PropTypes.number.isRequired,
+    validateUnique: PropTypes.func.isRequired
 }
 
+const validateUnique = (players, newName, indexOfUpdated) => {
+    const errordupes = players.map(p => p.errordupe)
+    const bitmask = 1 << indexOfUpdated
+
+    for (let i = 0; i < players.length; ++i) {
+        if (i === indexOfUpdated) continue
+        const thisMask = 1 << i
+
+        // check for duplicates
+        if (players[i].name === newName) {
+            errordupes[i] |= bitmask
+            errordupes[indexOfUpdated] |= thisMask
+        } else {
+            errordupes[i] &= ~bitmask
+            errordupes[indexOfUpdated] &= ~thisMask
+        }
+    }
+
+    return errordupes
+}
+
+// TODO: Single level selectin for fixed partnership mode
 const PlayerNamingStep = ({ state, dispatch }) => {
     const classes = useStyles()
 
     const PlayerSettingWrapped = (player, i) => (<PlayerSetting
         key={i} player={player} index={i + 1}
         set={(key, value) => dispatch(['players', i, key], value)}
+        validateUnique={
+            name => validateUnique(state.players, name, i).map((e, j) => dispatch(['players', j, 'errordupe'], e))
+        }
     />)
 
     return (<>
@@ -204,7 +248,12 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                 {
                     setup: wizardState => ({
                         numOfPlayers: wizardState.numOfPlayers,
-                        config: wizardState.config,
+                        config: wizardState.config && {
+                            decks: wizardState.config.decks,
+                            totalCards: wizardState.config.decks * 54,
+                            cardsPerPlayer: wizardState.config.perPlayer,
+                            spareCards: wizardState.config.spares
+                        }
                     }),
                     validate(stepState) {
                         if (stepState.config) return {}
@@ -234,10 +283,38 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                 {
                     setup: wizardState => ({
                         partnership: wizardState.partnership,
-                        players: wizardState.players || (new Array(wizardState.numOfPlayers).fill({
-                            name: '', level: 2
-                        }))
+                        players: wizardState.players ?
+                            wizardState.players.map(player => ({ name: player.name, level: player.level })) :
+                            (new Array(wizardState.numOfPlayers).fill({ name: '', level: 2 }))
                     }),
+                    validate(stepState) {
+                        let errorCode = stepState.players.reduce(
+                            (prev, current) => (prev || current.errordupe), false) ? 1 : 0
+
+                        const actionsToFeedback = []
+                        for (let i = 0; i < stepState.players.length; ++i) {
+                            if (!stepState.players[i].name)
+                                actionsToFeedback.push([['players', i, 'errorblank'], true])
+                        }
+
+                        return {
+                            error: errorCode | (actionsToFeedback.length ? 2 : 0),
+                            actionToFeedback: {
+                                type: 'setm',
+                                value: actionsToFeedback
+                            }
+                        }
+                    },
+                    onNext: stepState => ({
+                        type: 'merge',
+                        value: {
+                            players: stepState.players.map(player => ({
+                                name: player.name,
+                                level: player.level,
+                                active: true
+                            }))
+                        }
+                    })
                 }
             )
         ]}
