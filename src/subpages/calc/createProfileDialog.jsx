@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
     nicknameField: {
         minWidth: 170
     },
-    playerSetting: {
+    NicknameInput: {
         minWidth: 300,
         marginBottom: theme.spacing(3)
     },
@@ -99,7 +99,7 @@ const DeckPlanningStep = ({ state, dispatch }) => {
 
 DeckPlanningStep.propTypes = asWizardStepStepPropTypes
 
-const PlayerSetting = ({ player, set, index, validateUnique }) => {
+const NicknameInput = ({ player, set, index, validateUnique }) => {
     const classes = useStyles()
     const handleNameChange = event => {
         set('errorblank', !event.target.value.trim())
@@ -113,33 +113,26 @@ const PlayerSetting = ({ player, set, index, validateUnique }) => {
     const handleNameUnfocus = () => {
         const trimmedName = player.name.trim()
         set('name', trimmedName)
-        validateUnique(trimmedName)
+        if (trimmedName) validateUnique(trimmedName)
+        else set('errorblank', true)
     }
 
     const hasDupeError = !!player.errordupe
 
-    return (<Box mb={1}>
-        <TextField required
-            label={`Player ${index} Nickname`}
-            value={player.name}
-            onChange={handleNameChange}
-            onBlur={handleNameUnfocus}
-            className={classes.nicknameField}
-            error={player.errorblank || hasDupeError}
-            helperText={player.errorblank ?
-                'Nickname cannot be blank!' :
-                (hasDupeError && 'Nicknames cannot be duplicates.')}
-        />
-        <LevelInput required
-            label="Starting Level"
-            value={player.level}
-            onChange={event => set('level', event.target.value)}
-            className={classes.levelField}
-        />
-    </Box>)
+    return (<TextField required
+        label={`Player ${index} Nickname`}
+        value={player.name}
+        onChange={handleNameChange}
+        onBlur={handleNameUnfocus}
+        className={classes.nicknameField}
+        error={player.errorblank || hasDupeError}
+        helperText={player.errorblank ?
+            'Nickname cannot be blank!' :
+            (hasDupeError && 'Nicknames cannot be duplicates.')}
+    />)
 }
 
-PlayerSetting.propTypes = {
+NicknameInput.propTypes = {
     player: PropTypes.exact({
         name: PropTypes.string,
         level: PropTypes.number.isRequired,
@@ -176,8 +169,8 @@ const validateUnique = (players, newName, indexOfUpdated) => {
 const PlayerNamingStep = ({ state, dispatch }) => {
     const classes = useStyles()
 
-    const PlayerSettingWrapped = (player, i) => (<PlayerSetting
-        key={i} player={player} index={i + 1}
+    const NicknameInputWrapped = (player, i) => (<NicknameInput
+        player={player} index={i + 1}
         set={(key, value) => dispatch(['players', i, key], value)}
         validateUnique={
             name => validateUnique(state.players, name, i).map((e, j) => dispatch(['players', j, 'errordupe'], e))
@@ -186,21 +179,29 @@ const PlayerNamingStep = ({ state, dispatch }) => {
 
     return (<>
         <DialogContentText>Set the nicknames of the players. Nicknames should be unique and be at most 4 characters long.</DialogContentText>
-        <Box className={classes.settingsContainer}>
-            {state.partnership === 'floating' ?
-                state.players.map((player, i) => PlayerSettingWrapped(player, i)) :
-                [0, 1].map(i => (<Box className={classes.playerSetting} key={i}>
-                    <Typography variant="h6">Team {i + 1}</Typography>
-                    {state.players.map((player, j) => (j % 2 === i ? PlayerSettingWrapped(player, j) : null))}
-                </Box>))
-            }
-        </Box>
+        {state.partnership === 'floating' ?
+            state.players.map((player, i) => (<Box key={i} mb={1} mr={1}>
+                {NicknameInputWrapped(player, i)}
+                <LevelInput required label="Starting level" value={player.level} className={classes.levelField}
+                    onChange={event => dispatch(['players', i, 'level'], event.target.value)} />
+            </Box>)) :
+            [0, 1].map(i => (<Box className={classes.NicknameInput} key={i}>
+                <Box mb={1}><Typography variant="h6">Team {i + 1}</Typography></Box>
+                <LevelInput required label="Starting level" value={state.players[i].level} className={classes.levelField}
+                    onChange={event => dispatch(['players', i, 'level'], event.target.value)} />
+                <Box className={classes.settingsContainer}>
+                    {state.players.map((player, j) => (j % 2 === i ? (
+                        <Box mr={3} key={j}>{NicknameInputWrapped(player, j)}</Box>
+                    ) : null))}
+                </Box>
+            </Box>))
+        }
     </>)
 }
 
 PlayerNamingStep.propTypes = {
     state: PropTypes.exact({
-        players: PropTypes.arrayOf(PlayerSetting.propTypes.player).isRequired,
+        players: PropTypes.arrayOf(NicknameInput.propTypes.player).isRequired,
         partnership: PropTypes.oneOf(['fixed', 'floating'])
     }).isRequired,
     dispatch: PropTypes.func.isRequired
