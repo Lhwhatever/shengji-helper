@@ -9,8 +9,7 @@ import { LevelInput } from '../../components/inputs/levels'
 
 const useStyles = makeStyles(theme => ({
     profileNameField: {
-        marginBottom: theme.spacing(2),
-        width: 400
+        marginBottom: theme.spacing(2)
     },
     capitalize: {
         textTransform: 'capitalize'
@@ -55,9 +54,8 @@ const BasicInfoStep = ({ state, dispatch }) => {
     return (<>
         <DialogContentText>To create a new profile, fill in the following information.</DialogContentText>
         <Box className={classes.vContainer}>
-            <TextField
+            <TextField fullWidth required
                 label="Profile Name"
-                required
                 value={state.profileName}
                 error={state.profileNameError}
                 helperText={state.profileNameError ? 'Enter a profile name.' : null}

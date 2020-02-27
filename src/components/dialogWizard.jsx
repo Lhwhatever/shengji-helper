@@ -1,10 +1,16 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MobileStepper, Step, StepLabel, Stepper, useMediaQuery, useTheme } from '@material-ui/core'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MobileStepper, Step, StepLabel, Stepper, useMediaQuery, useTheme, makeStyles } from '@material-ui/core'
 import { Close, Done, NavigateBefore, NavigateNext } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
 import setMember from '../helper/setMember'
 import commonCls from './commonClasses'
 import { HExpander } from './structs'
+
+const useStyles = makeStyles(theme => ({
+    mBtnClose: {
+        marginLeft: theme.spacing(-2)
+    }
+}))
 
 const PrevButton = ({ first, onClick }) => (
     <Button startIcon={<NavigateBefore />} onClick={onClick} color="primary" disabled={first}>
@@ -139,6 +145,8 @@ export const asWizardStepStepPropTypes = {
 }
 
 const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer, onFinish }) => {
+    const classes = useStyles()
+
     const [stepIndex, setStepIndex] = useState(0)
     const [done, setDone] = useState(false)
     const [wizardState, wizardStateDispatcher] = useReducer((state, action) => {
@@ -196,7 +204,7 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
 
     return (<Dialog fullScreen={mobile} open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
         {mobile ?
-            <DialogTitle><IconButton aria-label="quit" onClick={handleCancel}><Close /></IconButton>{title || 'Quit'}</DialogTitle> :
+            <DialogTitle><IconButton aria-label="quit" onClick={handleCancel} className={classes.mBtnClose}><Close /></IconButton>{title || 'Quit'}</DialogTitle> :
             (title && <DialogTitle>{title}</DialogTitle>)
         }
         {mobile || <Stepper activeStep={stepIndex} alternativeLabel>
