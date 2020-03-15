@@ -27,6 +27,7 @@ const Calculator = () => {
                 const i = state.findIndex(profile => profile.uuid === action.key)
                 let newProfiles = state.slice()
                 newProfiles[i].name = action.value
+                newProfiles[i].lastUsed = new Date()
                 return newProfiles
             }
             case 'createProfile':

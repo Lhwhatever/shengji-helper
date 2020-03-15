@@ -22,7 +22,7 @@ export const saveProfiles = (profiles, window) => {
         JSON.stringify(profiles.map(profile => ({
             name: encodeURIComponent(profile.name),
             uuid: profile.uuid,
-            lastUsed: profile.lastUsed,
+            lastUsed: profile.lastUsed.valueOf(),
             floating: (profile.partnership === 'floating' ? 1 : 0),
             config: profile.config,
             players: profile.players.map(
