@@ -1,4 +1,4 @@
-import { Box, Card, CardActions, CardContent, FormControl, IconButton, Input, InputAdornment, InputLabel, makeStyles, Typography } from '@material-ui/core'
+import { Box, Card, CardActions, CardContent, FormControl, IconButton, Input, InputAdornment, InputLabel, makeStyles, Typography, Button } from '@material-ui/core'
 import { Delete, Done, Edit, ExpandLess, ExpandMore } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useRef, useState } from 'react'
@@ -6,6 +6,7 @@ import Moment from 'react-moment'
 import commonCls from '../../components/commonClasses'
 import Emoji from '../../components/emoji'
 import SimplePlayerStatus from './simplePlayerStatus'
+import { HExpander } from '../../components/structs'
 
 
 const useStyles = makeStyles(theme => ({
@@ -37,7 +38,7 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
         setProfileNameEditMode(false)
     }
 
-    return (<Card variant="outlined" {...props}>
+    return (<Card {...props}>
         <CardContent>
             {
                 profileNameEditMode ?
@@ -94,7 +95,9 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
             }
         </CardContent>
         <CardActions>
-            <IconButton aria-label="delete" size="small" onClick={deleteProfile}><Delete /></IconButton>
+            <HExpander />
+            <Button color="primary">Use</Button>
+            <Button onClick={deleteProfile} startIcon={<Delete />} color="secondary">Delete</Button>
         </CardActions>
     </Card>)
 
