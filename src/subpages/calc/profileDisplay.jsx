@@ -38,6 +38,10 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
         setProfileNameEditMode(false)
     }
 
+    const useProfile = () => {
+
+    }
+
     return (<Card {...props}>
         <CardContent>
             {
@@ -96,7 +100,7 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
         </CardContent>
         <CardActions>
             <HExpander />
-            <Button color="primary">Use</Button>
+            <Button onClick={useProfile} color="primary">Use</Button>
             <Button onClick={deleteProfile} startIcon={<Delete />} color="secondary">Delete</Button>
         </CardActions>
     </Card>)
@@ -106,7 +110,6 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
 ProfileDisplay.propTypes = {
     profile: PropTypes.exact({
         name: PropTypes.string.isRequired,
-        uuid: PropTypes.string.isRequired,
         lastUsed: PropTypes.instanceOf(Date).isRequired,
         partnership: PropTypes.oneOf(['fixed', 'floating']).isRequired,
         players: SimplePlayerStatus.propTypes.players,

@@ -23,21 +23,22 @@ const Calculator = () => {
     const [deleteProfileDialogOpen, setDeleteProfileDialogOpen] = useState([null, null])
     const [profiles, profileDispatch] = useReducer((state, action) => {
         switch (action.type) {
-            case 'setProfileName': {
-                const i = state.findIndex(profile => profile.uuid === action.key)
-                let newProfiles = state.slice()
-                newProfiles[i].name = action.value
-                newProfiles[i].lastUsed = new Date()
-                return newProfiles
-            }
+            case 'setProfileName':
+                state[action.key].name = action.value
+                state[action.key].lastUsed = new Date()
+                return state
             case 'createProfile':
-                return [...state, { ...action.value, uuid: uuidv4(), date: new Date() }]
+                return {
+                    ...state,
+                    [action.key]: { ...action.value, lastUsed: new Date() }
+                }
             case 'deleteProfile':
-                return (action.key === '') ? [] : state.filter(profile => profile.uuid !== action.key)
+                delete state[action.key]
+                return state
             default:
                 throw new Error(`Unknown action type ${action.type}`)
         }
-    }, [], () => loadProfiles(window))
+    }, {}, () => loadProfiles(window))
 
     useEffect(() => {
         saveProfiles(profiles, window)
@@ -66,7 +67,12 @@ const Calculator = () => {
         <CreateProfileDialog
             open={createProfileWizardOpen}
             setOpen={setCreateProfileWizardOpen}
-            onFinish={newProfile => profileDispatch({ type: 'createProfile', value: newProfile })}
+            onFinish={
+                newProfile => {
+                    const uuid = uuidv4()
+                    profileDispatch({ type: 'createProfile', key: uuid, value: newProfile })
+                }
+            }
         />
         <DeleteDialog
             open={deleteProfileDialogOpen}
@@ -75,14 +81,14 @@ const Calculator = () => {
         />
         <Box m={2}>
             {
-                profiles.length ?
-                    profiles.map(e => (
-                        <Box mb={1} key={e.uuid}>
+                Object.values(profiles).length ?
+                    Object.entries(profiles).map(([uuid, e]) => (
+                        <Box mb={1} key={uuid}>
                             <ProfileDisplay profile={e} setProfileName={name => profileDispatch({
                                 type: 'setProfileName',
-                                key: e.uuid,
+                                key: uuid,
                                 value: name
-                            })} deleteProfile={() => setDeleteProfileDialogOpen([e.uuid, e.name])} />
+                            })} deleteProfile={() => setDeleteProfileDialogOpen([uuid, e.name])} />
                         </Box>
                     )) : null
             }

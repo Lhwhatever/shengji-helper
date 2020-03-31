@@ -1,10 +1,9 @@
 const localStorageKey = 'shengji-helper-profiles'
 
-export const loadProfiles = window => {
-    return JSON.parse(window.localStorage.getItem(localStorageKey) || '[]')
-        .map(profile => ({
+export const loadProfiles = window => Object.fromEntries(
+    JSON.parse(window.localStorage.getItem(localStorageKey) || '[]')
+        .map(profile => [profile.uuid, {
             name: decodeURIComponent(profile.name),
-            uuid: profile.uuid,
             lastUsed: new Date(profile.lastUsed),
             partnership: (profile.floating ? 'floating' : 'fixed'),
             config: profile.config,
@@ -13,15 +12,15 @@ export const loadProfiles = window => {
                 level: player[1] >> 1,
                 active: (player[1] & 1) === 1
             }))
-        }))
-}
+        }])
+)
 
 export const saveProfiles = (profiles, window) => {
     window.localStorage.setItem(
         localStorageKey,
-        JSON.stringify(profiles.map(profile => ({
+        JSON.stringify(Object.entries(profiles).map(([uuid, profile]) => ({
             name: encodeURIComponent(profile.name),
-            uuid: profile.uuid,
+            uuid: uuid,
             lastUsed: profile.lastUsed.valueOf(),
             floating: (profile.partnership === 'floating' ? 1 : 0),
             config: profile.config,
