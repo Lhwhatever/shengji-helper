@@ -7,6 +7,7 @@ import commonCls from '../../components/commonClasses'
 import Emoji from '../../components/emoji'
 import SimplePlayerStatus from './simplePlayerStatus'
 import { HExpander } from '../../components/structs'
+import { navigate } from 'gatsby'
 
 
 const useStyles = makeStyles(theme => ({
@@ -21,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) => {
+const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props }) => {
     const classes = { ...commonCls(), ...useStyles() }
     const [profileNameEditMode, setProfileNameEditMode] = useState(false)
     const [playerListVisibility, setPlayerListVisibility] = useState(false)
@@ -38,9 +39,9 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
         setProfileNameEditMode(false)
     }
 
-    const useProfile = () => {
-
-    }
+    const useProfile = () => navigate('/profile', {
+        state: { uuid }
+    })
 
     return (<Card {...props}>
         <CardContent>
@@ -108,6 +109,7 @@ const ProfileDisplay = ({ profile, setProfileName, deleteProfile, ...props }) =>
 }
 
 ProfileDisplay.propTypes = {
+    uuid: PropTypes.string.isRequired,
     profile: PropTypes.exact({
         name: PropTypes.string.isRequired,
         lastUsed: PropTypes.instanceOf(Date).isRequired,

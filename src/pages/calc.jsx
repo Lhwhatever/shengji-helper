@@ -84,7 +84,7 @@ const Calculator = () => {
                 Object.values(profiles).length ?
                     Object.entries(profiles).map(([uuid, e]) => (
                         <Box mb={1} key={uuid}>
-                            <ProfileDisplay profile={e} setProfileName={name => profileDispatch({
+                            <ProfileDisplay uuid={uuid} profile={e} setProfileName={name => profileDispatch({
                                 type: 'setProfileName',
                                 key: uuid,
                                 value: name

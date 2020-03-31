@@ -10,7 +10,7 @@ import theme from '../theme'
 import './layout.css'
 
 const Layout = ({ children }) => {
-  const data = useStaticQuery(graphql`
+    const data = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {
         siteMetadata {
@@ -20,18 +20,18 @@ const Layout = ({ children }) => {
     }
   `)
 
-  return (
-    <ThemeProvider theme={theme}>
-      <Header siteTitle={data.site.siteMetadata.title} />
-      <Container>
-        {children}
-      </Container>
-    </ThemeProvider>
-  )
+    return (
+        <ThemeProvider theme={theme}>
+            <Header siteTitle={data.site.siteMetadata.title} />
+            <Container>
+                {children}
+            </Container>
+        </ThemeProvider>
+    )
 }
 
 Layout.propTypes = {
-  children: PropTypes.node.isRequired,
+    children: PropTypes.node,
 }
 
 export default Layout
