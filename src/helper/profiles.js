@@ -9,8 +9,8 @@ export const loadProfiles = window => Object.fromEntries(
             config: profile.config,
             players: profile.players.map(player => ({
                 name: player[0],
-                level: player[1] >> 1,
-                active: (player[1] & 1) === 1
+                level: player[1] >> 2,
+                active: player[1] & 0b11
             }))
         }])
 )
@@ -25,7 +25,7 @@ export const saveProfiles = (profiles, window) => {
             floating: (profile.partnership === 'floating' ? 1 : 0),
             config: profile.config,
             players: profile.players.map(
-                player => [player.name, (player.level << 1) | (player.active ? 1 : 0)]
+                player => [player.name, (player.level << 2) | player.active]
             )
         })))
     )

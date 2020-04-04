@@ -317,7 +317,7 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                             players: stepState.players.map(player => ({
                                 name: player.name,
                                 level: player.level,
-                                active: true
+                                active: 1
                             }))
                         }
                     })

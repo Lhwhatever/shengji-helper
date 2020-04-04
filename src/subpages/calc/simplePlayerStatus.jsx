@@ -24,10 +24,13 @@ LevelDisplay.propTypes = {
     active: PropTypes.bool,
     level: PropTypes.number,
     player: PropTypes.exact({
-        active: PropTypes.bool.isRequired,
+        active: PropTypes.number.isRequired,
         level: PropTypes.number.isRequired
     })
 }
+
+const fixedPlayerNameList = (players, teamId) =>
+    players.filter((_, i) => (i & 2 === teamId)).map(player => `${player.name}${(player.active & 0b10) ? ' (Leader)' : ''}`)
 
 const SimplePlayerStatus = ({ partnership, players }) => {
     const classes = commonCls()
@@ -37,7 +40,7 @@ const SimplePlayerStatus = ({ partnership, players }) => {
             <Typography variant="body2">
                 {
                     formatList(players.map(
-                        player => <>{player.name} (<LevelDisplay player={player} />)</>
+                        player => <>{player.name} (<LevelDisplay player={player} />{(player.active & 0b10) ? ', Leader' : ''})</>
                     ))
                 }
             </Typography>
@@ -45,10 +48,10 @@ const SimplePlayerStatus = ({ partnership, players }) => {
     } else {
         return (<Box className={classes.vContainer}>
             <Typography variant="body2">
-                Team 1 (<LevelDisplay player={players[0]} />): {formatList(players.filter((e, i) => (i % 2 === 0)).map(player => player.name))}
+                Team 1 (<LevelDisplay player={players[0]} />): {formatList(fixedPlayerNameList(players, 0))}
             </Typography>
             <Typography variant="body2">
-                Team 2 (<LevelDisplay player={players[1]} />): {formatList(players.filter((e, i) => (i % 2 === 1)).map(player => player.name))}
+                Team 2 (<LevelDisplay player={players[1]} />): {formatList(fixedPlayerNameList(players, 1))}
             </Typography>
         </Box>)
     }
@@ -60,7 +63,7 @@ SimplePlayerStatus.propTypes = {
     players: PropTypes.arrayOf(PropTypes.exact({
         name: PropTypes.string.isRequired,
         level: PropTypes.number.isRequired,
-        active: PropTypes.bool.isRequired
+        active: PropTypes.number.isRequired
     })).isRequired
 }
 
