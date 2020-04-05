@@ -1,11 +1,14 @@
-import { Box, CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Box, CircularProgress, Grid, makeStyles, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { ChevronLeft } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/header'
 import Layout from '../components/layout'
 import { ButtonLink } from '../components/links'
+import { PlayerPropType, LevelDisplay } from '../components/player'
+import { PaddedTable } from '../components/table'
 import { loadProfiles } from '../helper/profiles'
+import ProfileDisplay from '../subpages/calc/profileDisplay'
 
 const activeProfileStorageKey = 'shengji-helper-active'
 const redirectTo = (window, dest) => window.location.replace(dest)
@@ -35,24 +38,36 @@ const ProfileHeader = ({ profile }) => {
 
     return (<Header>
         <ButtonLink color="inherit" startIcon={<ChevronLeft />} to="/calc">Back</ButtonLink>
-        <Box ml={3} className={classes.profileHeaderTextBox}>
+        {profile && <Box ml={3} className={classes.profileHeaderTextBox}>
             <Typography variant="h6">{profile.name}</Typography>
             <Box ml={2} />
             <Typography variant="body2">({profile.config.decks} decks, {profile.players.length} players)</Typography>
-        </Box>
+        </Box>}
     </Header>)
 }
 
 
 ProfileHeader.propTypes = {
-    profile: PropTypes.object
+    profile: ProfileDisplay.propTypes.profile
+}
+
+const PlayerRow = ({ player }) => (<TableRow>
+    <TableCell>{player.name}</TableCell>
+    <TableCell><LevelDisplay player={player} /></TableCell>
+    <TableCell>c</TableCell>
+    <TableCell>d</TableCell>
+</TableRow>)
+
+PlayerRow.propTypes = {
+    player: PlayerPropType.isRequired
 }
 
 
 const Profile = ({ location }) => {
-
     const [uuid, setUuid] = useState()
     const [profileList, setProfileList] = useState()
+    const tableSize = useMediaQuery(useTheme().breakpoints.up('md')) ? 'medium' : 'small'
+
     useEffect(() => {
         if (location && location.state && location.state.uuid)
             window.localStorage.setItem(activeProfileStorageKey, location.state.uuid)
@@ -74,9 +89,23 @@ const Profile = ({ location }) => {
 
 
     return (<Layout header={<ProfileHeader profile={profileList && profileList[uuid]} />}>
-        {profileList ?
+        {(profileList && profileList[uuid]) ?
             <Box>
-                <Typography variant="body2">Placeholder</Typography>
+                <TableContainer component={Paper}>
+                    <PaddedTable size={tableSize}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Player</TableCell>
+                                <TableCell>Level</TableCell>
+                                <TableCell>Leader</TableCell>
+                                <TableCell>New Level</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {profileList[uuid].players.map((player, i) => <PlayerRow key={i} player={player} />)}
+                        </TableBody>
+                    </PaddedTable>
+                </TableContainer>
             </Box> : <Loading />
         }
     </Layout>)

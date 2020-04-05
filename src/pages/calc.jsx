@@ -70,6 +70,7 @@ const Calculator = () => {
             onFinish={
                 newProfile => {
                     const uuid = uuidv4()
+                    newProfile.leader = -1
                     profileDispatch({ type: 'createProfile', key: uuid, value: newProfile })
                 }
             }
@@ -90,7 +91,7 @@ const Calculator = () => {
                                 value: name
                             })} deleteProfile={() => setDeleteProfileDialogOpen([uuid, e.name])} />
                         </Box>
-                    )) : null
+                    )) : []
             }
         </Box>
     </Layout>)

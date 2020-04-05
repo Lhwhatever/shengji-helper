@@ -95,7 +95,7 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
             {
                 playerListVisibility && <Box className={classes.cardRow}>
                     <Emoji code="busts_in_silhouette" mr={1} className={classes.invisible} />
-                    <SimplePlayerStatus players={profile.players} partnership={profile.partnership} />
+                    <SimplePlayerStatus players={profile.players} partnership={profile.partnership} leader={profile.leader} />
                 </Box>
             }
         </CardContent>
@@ -119,7 +119,8 @@ ProfileDisplay.propTypes = {
             decks: PropTypes.number.isRequired,
             perPlayer: PropTypes.number.isRequired,
             spares: PropTypes.number.isRequired
-        }).isRequired
+        }).isRequired,
+        leader: PropTypes.number.isRequired
     }).isRequired,
     setProfileName: PropTypes.func,
     deleteProfile: PropTypes.func.isRequired
