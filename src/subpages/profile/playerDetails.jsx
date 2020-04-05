@@ -1,27 +1,38 @@
-import { Box, Checkbox, Paper, Radio, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, Checkbox, Paper, Radio, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, useTheme, TextField, InputAdornment, IconButton } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React, { useReducer, useState } from 'react'
 import commonCls from '../../components/commonClasses'
-import { LevelDisplay, PlayerPropType } from '../../components/player'
+import { PlayerPropType } from '../../components/player'
+import { LevelDisplay } from '../../components/levels'
 import { PaddedTable } from '../../components/table'
 import { ProfilePropType } from '../../helper/profiles'
+import { useRef } from 'react'
+import { Clear } from '@material-ui/icons'
+import { makeStyles } from '@material-ui/styles'
+
+const useStyles = makeStyles({
+    scoreInput: {
+        minWidth: '25%',
+        maxWidth: 135
+    }
+})
 
 const PlayerRow = ({ player, leaderState, isLeader, setAsLeader, isDefender, setAsDefender, maxedDefenders, size }) => {
     const handleDefenderChange = event => setAsDefender(event.target.checked)
 
     return (<TableRow>
         <TableCell>{player.name}</TableCell>
-        <TableCell><LevelDisplay player={player} /></TableCell>
-        <TableCell>
+        <TableCell align="center"><LevelDisplay player={player} /></TableCell>
+        <TableCell align="center">
             {player.active &&
-                <Radio color="primary" size={size}
+                <Radio color="secondary" size={size}
                     checked={isLeader} onChange={setAsLeader}
                     name="set-leader-radio"
                     disabled={leaderState === 'preset'} />}
         </TableCell>
-        <TableCell>
+        <TableCell align="center">
             {leaderState !== 'not set' &&
-                <Checkbox color="primary" size={size}
+                <Checkbox color="secondary" size={size}
                     checked={isDefender} onChange={handleDefenderChange}
                     disabled={isLeader || (maxedDefenders && !isDefender)}
                 />}
@@ -43,7 +54,7 @@ PlayerRow.propTypes = {
 }
 
 const PlayerDetails = ({ profile }) => {
-    const classes = commonCls()
+    const classes = { ...commonCls(), ...useStyles() }
 
     const tableSize = useMediaQuery(useTheme().breakpoints.up('md')) ? 'medium' : 'small'
     const [leader, setLeader] = useState(profile.leader)
@@ -80,15 +91,45 @@ const PlayerDetails = ({ profile }) => {
 
     const leaderState = profile.leader === -1 ? (leader === -1 ? 'not set' : 'set') : 'preset'
 
+    const [defenderDelta, setDefenderDelta] = useState()
+    const [attackerDelta, setAttackerDelta] = useState()
+
+    const scoreRef = useRef()
+    const handleScoreChange = () => {
+        if (scoreRef.current.value === '') {
+            setDefenderDelta(undefined)
+            setAttackerDelta(undefined)
+            return
+        }
+
+        const score = Math.round(scoreRef.current.value / 5) * 5
+        scoreRef.current.value = score
+
+        const defenderMultiplier = maxDefenders - defenders.count + 1
+
+        if (score <= 0) {
+            setDefenderDelta(3 * defenderMultiplier)
+            setAttackerDelta(0)
+        } else {
+            const steps = Math.min(Math.floor(score / 20 / profile.config.decks), 5)
+            setDefenderDelta(Math.max(2 - steps, 0) * defenderMultiplier)
+            setAttackerDelta(Math.max(steps - 2, 0))
+        }
+    }
+
+    const handleScoreClear = () => {
+        scoreRef.current.value = ''
+    }
+
     return (<Box>
         <TableContainer component={Paper}>
             <PaddedTable size={tableSize}>
                 <TableHead>
                     <TableRow>
                         <TableCell>Player</TableCell>
-                        <TableCell>Level</TableCell>
-                        <TableCell>Leader</TableCell>
-                        <TableCell><Box className={classes.vContainer}>
+                        <TableCell align="center">Level</TableCell>
+                        <TableCell align="center">Leader</TableCell>
+                        <TableCell align="center"><Box className={classes.vContainer}>
                             <Box>Defender</Box>
                             <Box mt={-1}><Typography variant="caption">(max {maxDefenders})</Typography></Box>
                         </Box></TableCell>
@@ -106,7 +147,26 @@ const PlayerDetails = ({ profile }) => {
                         />)}
                 </TableBody>
             </PaddedTable>
-            <Typography variant="h6">Hello</Typography>
+            <Box m={2}>
+                <Typography variant="h6">Round Outcome</Typography>
+                {defenderDelta} {attackerDelta}
+                <Box className={classes.hContainer} mt={1}>
+                    <TextField variant="filled" size={tableSize} className={classes.scoreInput}
+                        label="Score" type="number"
+                        inputProps={{ step: 5 }}
+                        inputRef={scoreRef}
+                        onBlur={handleScoreChange}
+                        inputProps={{ inputmode: 'numeric' }}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton aria-label="clear score" onClick={handleScoreClear}><Clear /></IconButton>
+                                </InputAdornment>
+                            )
+                        }}
+                    />
+                </Box>
+            </Box>
         </TableContainer>
     </Box>)
 }

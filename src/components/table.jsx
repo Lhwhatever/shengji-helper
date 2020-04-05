@@ -8,7 +8,8 @@ const useStyles = makeStyles(theme => ({
         '& td, & th': {
             paddingLeft: theme.spacing(2),
             paddingRight: theme.spacing(props.size === 'small' ? 3 : 2)
-        }
+        },
+        marginBottom: theme.spacing(0)
     })
 }))
 
