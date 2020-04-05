@@ -9,6 +9,7 @@ const NumOfPlayerField = React.forwardRef((props, ref) => (
         fullWidth
         label={'No. of Players'}
         ref={ref}
+        variant="filled"
         {...props}
     >{range(4, 11).map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
     </SelectField>

@@ -1,10 +1,9 @@
-import React from 'react'
+import { Box, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
-
+import React from 'react'
 import commonCls from '../../components/commonClasses'
-import { Typography, Box } from '@material-ui/core'
-import { LevelDisplay, PlayerPropType } from '../../components/player'
-
+import { LevelDisplay } from '../../components/levels'
+import { PlayerPropType } from '../../components/player'
 
 const formatList = array => array.reduce((a, e) => (a === null ? [e] : [...a, ', ', e]), null)
 

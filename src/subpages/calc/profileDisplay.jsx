@@ -1,14 +1,14 @@
-import { Box, Card, CardActions, CardContent, FormControl, IconButton, Input, InputAdornment, InputLabel, makeStyles, Typography, Button } from '@material-ui/core'
+import { Box, Button, Card, CardActions, CardContent, IconButton, InputAdornment, makeStyles, TextField, Typography } from '@material-ui/core'
 import { Delete, Done, Edit, ExpandLess, ExpandMore } from '@material-ui/icons'
+import { navigate } from 'gatsby'
 import PropTypes from 'prop-types'
 import React, { useRef, useState } from 'react'
 import Moment from 'react-moment'
 import commonCls from '../../components/commonClasses'
 import Emoji from '../../components/emoji'
-import SimplePlayerStatus from './simplePlayerStatus'
 import { HExpander } from '../../components/structs'
-import { navigate } from 'gatsby'
 import { ProfilePropType } from '../../helper/profiles'
+import SimplePlayerStatus from './simplePlayerStatus'
 
 
 const useStyles = makeStyles(theme => ({
@@ -48,21 +48,19 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
         <CardContent>
             {
                 profileNameEditMode ?
-                    <FormControl className={classes.profileNameField}>
-                        <InputLabel htmlFor={`profile-name-field-${profile.uuid}`}>Profile Name</InputLabel>
-                        <Input
-                            id={`profile-name-field-${profile.uuid}`}
-                            inputRef={profileNameFieldRef}
-                            defaultValue={profile.name}
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton aria-label="done" onClick={doneEditingProfileName}>
-                                        <Done />
-                                    </IconButton>
-                                </InputAdornment>
-                            }
-                        />
-                    </FormControl> :
+                    <TextField className={classes.profileNameField}
+                        label="Profile Name"
+                        inputRef={profileNameFieldRef}
+                        defaultValue={profile.name}
+                        variant="filled"
+                        InputProps={{
+                            endAdornment: (<InputAdornment position="end">
+                                <IconButton aria-label="done" onClick={doneEditingProfileName}>
+                                    <Done />
+                                </IconButton>
+                            </InputAdornment>)
+                        }}
+                    /> :
                     <Box className={classes.cardRow}>
                         <Typography variant="h5" mr={1}>{profile.name}</Typography>
                         <Box ml={1}><IconButton aria-label="edit" size="small" onClick={beginEditingProfileName}>

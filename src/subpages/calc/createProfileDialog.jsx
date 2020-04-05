@@ -61,6 +61,7 @@ const BasicInfoStep = ({ state, dispatch }) => {
                 helperText={state.profileNameError ? 'Enter a profile name.' : null}
                 onChange={handleProfileNameFieldChange}
                 className={classes.profileNameField}
+                variant="filled"
             />
             <Box className={classes.hContainer}>
                 <NumOfPlayerField value={state.numOfPlayers} onChange={handleNumOfPlayerChange} required />
@@ -70,6 +71,7 @@ const BasicInfoStep = ({ state, dispatch }) => {
                     label="Partnership"
                     value={state.partnershipMode}
                     onChange={event => dispatch('partnershipMode', event.target.value)}
+                    variant="filled"
                 >
                     <MenuItem value="floating">Floating</MenuItem>
                     {fixedPartnershipAllowed &&
@@ -124,6 +126,7 @@ const NicknameInput = ({ player, set, index, validateUnique }) => {
         onBlur={handleNameUnfocus}
         className={classes.nicknameField}
         error={player.errorblank || hasDupeError}
+        variant="filled"
         helperText={player.errorblank ?
             'Nickname cannot be blank!' :
             (hasDupeError && 'Nicknames cannot be duplicates.')}
@@ -187,7 +190,7 @@ const PlayerNamingStep = ({ state, dispatch }) => {
                 <Box mb={1}><Typography variant="h6">Team {i + 1}</Typography></Box>
                 <LevelInput required label="Starting level" value={state.players[i].level} className={classes.levelField}
                     onChange={event => dispatch(['players', i, 'level'], event.target.value)} />
-                <Box className={classes.settingsContainer}>
+                <Box className={classes.settingsContainer} mt={2}>
                     {state.players.map((player, j) => (j % 2 === i ? (
                         <Box mr={3} key={j}>{NicknameInputWrapped(player, j)}</Box>
                     ) : null))}
@@ -317,7 +320,7 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                             players: stepState.players.map(player => ({
                                 name: player.name,
                                 level: player.level,
-                                active: 1
+                                active: true
                             }))
                         }
                     })
