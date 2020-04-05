@@ -1,37 +1,25 @@
-import { Box, CircularProgress, Grid, makeStyles, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, makeStyles, Typography } from '@material-ui/core'
 import { ChevronLeft } from '@material-ui/icons'
 import PropTypes from 'prop-types'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import Header from '../components/header'
 import Layout from '../components/layout'
 import { ButtonLink } from '../components/links'
-import { PlayerPropType, LevelDisplay } from '../components/player'
-import { PaddedTable } from '../components/table'
-import { loadProfiles } from '../helper/profiles'
-import ProfileDisplay from '../subpages/calc/profileDisplay'
+import Loading from '../components/loading'
+import { loadProfiles, ProfilePropType, saveProfiles } from '../helper/profiles'
+import PlayerDetails from '../subpages/profile/playerDetails'
 
 const activeProfileStorageKey = 'shengji-helper-active'
 const redirectTo = (window, dest) => window.location.replace(dest)
 
-const useStyles = makeStyles(() => ({
-    loadingGrid: {
-        height: '100vh'
-    },
+const useStyles = makeStyles({
     profileHeaderTextBox: {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center'
     }
-}))
+})
 
-const Loading = () => {
-    const classes = useStyles()
-
-    return (<Grid container justify="center" spacing={1} alignItems="center" direction="column" className={classes.loadingGrid}>
-        <Grid item xs={12}><CircularProgress color="secondary" /></Grid>
-        <Grid item xs={12}><Typography variant="body2">Loading...</Typography></Grid>
-    </Grid>)
-}
 
 const ProfileHeader = ({ profile }) => {
     const classes = useStyles()
@@ -48,25 +36,21 @@ const ProfileHeader = ({ profile }) => {
 
 
 ProfileHeader.propTypes = {
-    profile: ProfileDisplay.propTypes.profile
+    profile: ProfilePropType
 }
-
-const PlayerRow = ({ player }) => (<TableRow>
-    <TableCell>{player.name}</TableCell>
-    <TableCell><LevelDisplay player={player} /></TableCell>
-    <TableCell>c</TableCell>
-    <TableCell>d</TableCell>
-</TableRow>)
-
-PlayerRow.propTypes = {
-    player: PlayerPropType.isRequired
-}
-
 
 const Profile = ({ location }) => {
     const [uuid, setUuid] = useState()
-    const [profileList, setProfileList] = useState()
-    const tableSize = useMediaQuery(useTheme().breakpoints.up('md')) ? 'medium' : 'small'
+    const [profileList, profileListDispatch] = useReducer((state, action) => {
+        switch (action.type) {
+            case 'init':
+                return action.value
+            case 'update':
+                return { ...state, [uuid]: action.value }
+            default:
+                throw `unknown profileListDispatch action.type ${action.type}`
+        }
+    }, {})
 
     useEffect(() => {
         if (location && location.state && location.state.uuid)
@@ -84,30 +68,15 @@ const Profile = ({ location }) => {
             redirectTo(window, '/calc')
             return
         }
-        setProfileList(profiles)
+        profileListDispatch({ type: 'init', value: profiles })
     }, [])
 
+    useEffect(() => {
+        saveProfiles(profileList, window)
+    }, [profileList])
 
     return (<Layout header={<ProfileHeader profile={profileList && profileList[uuid]} />}>
-        {(profileList && profileList[uuid]) ?
-            <Box>
-                <TableContainer component={Paper}>
-                    <PaddedTable size={tableSize}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Player</TableCell>
-                                <TableCell>Level</TableCell>
-                                <TableCell>Leader</TableCell>
-                                <TableCell>New Level</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {profileList[uuid].players.map((player, i) => <PlayerRow key={i} player={player} />)}
-                        </TableBody>
-                    </PaddedTable>
-                </TableContainer>
-            </Box> : <Loading />
-        }
+        {(profileList && profileList[uuid]) ? <PlayerDetails profile={profileList[uuid]} /> : <Loading />}
     </Layout>)
 }
 
