@@ -205,11 +205,13 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
     return (<Dialog fullScreen={mobile} open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
         {mobile ?
             <DialogTitle><IconButton aria-label="quit" onClick={handleCancel} className={classes.mBtnClose}><Close /></IconButton>{title || 'Quit'}</DialogTitle> :
-            (title && <DialogTitle>{title}</DialogTitle>)
+            (title && <>
+                <DialogTitle>{title}</DialogTitle>
+                <Stepper activeStep={stepIndex} alternativeLabel>
+                    {steps.map(step => <Step key={step.stepLabel}><StepLabel>{step.stepLabel}</StepLabel></Step>)}
+                </Stepper>
+            </>)
         }
-        {mobile || <Stepper activeStep={stepIndex} alternativeLabel>
-            {steps.map(step => <Step key={step.stepLabel}><StepLabel>{step.stepLabel}</StepLabel></Step>)}
-        </Stepper>}
         {React.createElement(steps[stepIndex],
             {
                 advance: handleAdvance,
