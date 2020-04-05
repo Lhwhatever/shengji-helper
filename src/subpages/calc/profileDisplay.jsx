@@ -8,6 +8,7 @@ import Emoji from '../../components/emoji'
 import SimplePlayerStatus from './simplePlayerStatus'
 import { HExpander } from '../../components/structs'
 import { navigate } from 'gatsby'
+import { ProfilePropType } from '../../helper/profiles'
 
 
 const useStyles = makeStyles(theme => ({
@@ -110,18 +111,7 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
 
 ProfileDisplay.propTypes = {
     uuid: PropTypes.string.isRequired,
-    profile: PropTypes.exact({
-        name: PropTypes.string.isRequired,
-        lastUsed: PropTypes.instanceOf(Date).isRequired,
-        partnership: PropTypes.oneOf(['fixed', 'floating']).isRequired,
-        players: SimplePlayerStatus.propTypes.players,
-        config: PropTypes.exact({
-            decks: PropTypes.number.isRequired,
-            perPlayer: PropTypes.number.isRequired,
-            spares: PropTypes.number.isRequired
-        }).isRequired,
-        leader: PropTypes.number.isRequired
-    }).isRequired,
+    profile: ProfilePropType.isRequired,
     setProfileName: PropTypes.func,
     deleteProfile: PropTypes.func.isRequired
 }

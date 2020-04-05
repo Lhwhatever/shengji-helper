@@ -1,3 +1,6 @@
+import PropTypes from 'prop-types'
+import SimplePlayerStatus from '../subpages/calc/simplePlayerStatus'
+
 const localStorageKey = 'shengji-helper-profiles'
 
 export const loadProfiles = window => Object.fromEntries(
@@ -33,3 +36,15 @@ export const saveProfiles = (profiles, window) => {
     )
 }
 
+export const ProfilePropType = PropTypes.exact({
+    name: PropTypes.string.isRequired,
+    lastUsed: PropTypes.instanceOf(Date).isRequired,
+    partnership: PropTypes.oneOf(['fixed', 'floating']).isRequired,
+    players: SimplePlayerStatus.propTypes.players,
+    config: PropTypes.exact({
+        decks: PropTypes.number.isRequired,
+        perPlayer: PropTypes.number.isRequired,
+        spares: PropTypes.number.isRequired
+    }).isRequired,
+    leader: PropTypes.number.isRequired
+})
