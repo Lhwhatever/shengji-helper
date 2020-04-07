@@ -24,7 +24,7 @@ const LevelDisplay = props => {
 }
 
 LevelDisplay.propTypes = {
-    active: PropTypes.number,
+    active: PropTypes.bool,
     level: PropTypes.number,
     player: PlayerPropType
 }
