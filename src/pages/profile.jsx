@@ -75,8 +75,15 @@ const Profile = ({ location }) => {
         saveProfiles(profileList, window)
     }, [profileList])
 
+    const handleProfileUpdate = profile => profileListDispatch({
+        type: 'update',
+        value: profile
+    })
+
     return (<Layout header={<ProfileHeader profile={profileList && profileList[uuid]} />}>
-        {(profileList && profileList[uuid]) ? <PlayerDetails profile={profileList[uuid]} /> : <Loading />}
+        {(profileList && profileList[uuid]) ?
+            <PlayerDetails profile={profileList[uuid]} onUpdate={handleProfileUpdate} /> :
+            <Loading />}
     </Layout>)
 }
 
