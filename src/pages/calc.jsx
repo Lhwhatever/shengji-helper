@@ -15,8 +15,6 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-//[{"name":"Profile%202","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed","lastUsed":"2020-02-07T04:00:00.000Z","floating":0,"numOfDecks":2,"players":[["DEF",8],["KBC",2]]},{"name":"Create%20Profile","uuid":"1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bee","lastUsed":"2020-02-07T03:00:00.000Z","floating":1,"numOfDecks":3,"players":[["DEF",3],["GHI",10]]}]
-
 const Calculator = () => {
     const classes = useStyles()
     const [createProfileWizardOpen, setCreateProfileWizardOpen] = useState(false)
@@ -32,9 +30,12 @@ const Calculator = () => {
                     ...state,
                     [action.key]: { ...action.value, lastUsed: new Date() }
                 }
-            case 'deleteProfile':
+            case 'deleteProfile': {
+                if (action.key === '*') return {}
+                let newState = state
                 delete state[action.key]
-                return state
+                return newState
+            }
             default:
                 throw new Error(`Unknown action type ${action.type}`)
         }
@@ -59,7 +60,7 @@ const Calculator = () => {
             color="secondary"
             className={classes.btn}
             startIcon={<Delete />}
-            onClick={() => setDeleteProfileDialogOpen(['', 'all profiles'])}
+            onClick={() => setDeleteProfileDialogOpen(['*', 'all profiles'])}
             disabled={profiles.length === 0}
         >
             Delete All
