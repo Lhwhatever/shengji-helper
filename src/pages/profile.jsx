@@ -46,7 +46,7 @@ const Profile = ({ location }) => {
             case 'init':
                 return action.value
             case 'update':
-                return { ...state, [uuid]: action.value }
+                return { ...state, [uuid]: { ...action.value, lastUsed: new Date() } }
             default:
                 throw `unknown profileListDispatch action.type ${action.type}`
         }
