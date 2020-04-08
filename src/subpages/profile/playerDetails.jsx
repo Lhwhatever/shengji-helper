@@ -1,13 +1,12 @@
-import { Box, Checkbox, IconButton, InputAdornment, Paper, Radio, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery, useTheme, Button } from '@material-ui/core'
-import { Clear, Star, ChevronRight } from '@material-ui/icons'
+import { Box, Button, IconButton, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { ChevronRight, Clear } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/styles'
 import PropTypes from 'prop-types'
 import React, { useReducer, useRef, useState } from 'react'
 import commonCls from '../../components/commonClasses'
-import { LevelDisplay } from '../../components/levels'
-import { PlayerPropType } from '../../components/player'
 import { PaddedTable } from '../../components/table'
 import { ProfilePropType } from '../../helper/profiles'
+import PlayerRow, { Benefit, Cost } from './playerRow'
 
 const useStyles = makeStyles(theme => ({
     scoreInput: {
@@ -17,61 +16,8 @@ const useStyles = makeStyles(theme => ({
     outcomeBox: {
         flex: 2,
         padding: theme.spacing(1)
-    },
-    benefit: {
-        color: theme.palette.primary.main,
-        fontWeight: 'bold'
-    },
-    cost: {
-        color: theme.palette.secondary.main,
-        fontWeight: 'bold'
     }
 }))
-
-const PlayerRow = props => {
-    const handleDefenderChange = event => props.setAsDefender(event.target.checked)
-
-    return (<TableRow>
-        <TableCell>{props.player.name}</TableCell>
-        <TableCell align="center"><LevelDisplay player={props.player} /></TableCell>
-        <TableCell align="center">
-            {props.player.active &&
-                <Radio color="secondary" size={props.size}
-                    checked={props.isLeader} onChange={props.setAsLeader}
-                    name="set-leader-radio"
-                    disabled={props.leaderState === 'preset'} />}
-        </TableCell>
-        <TableCell align="center">
-            {props.leaderState !== 'not set' &&
-                <Checkbox color="secondary" size={props.size}
-                    checked={props.isDefender} onChange={handleDefenderChange}
-                    disabled={props.isLeader || (props.maxedDefenders && !props.isDefender)}
-                />}
-        </TableCell>
-        <TableCell>
-            {props.delta === undefined || (props.newLevel.level > 14 ? <><Star /> Victory</> : <>
-                <LevelDisplay level={props.newLevel.level} active={props.newLevel.active} />{' '}
-                {props.delta > 1 && <Benefit>{props.player.active ? `+${props.delta}` : `↑${props.delta - 1}`}</Benefit>}
-                {props.delta === 1 && <Benefit>{props.player.active ? '+1' : '↑'}</Benefit>}
-                {props.delta === 0 && props.player.active && <Cost>↓</Cost>}
-            </>)}
-        </TableCell>
-    </TableRow>)
-}
-
-
-PlayerRow.propTypes = {
-    size: PropTypes.oneOf(['small', 'medium']).isRequired,
-    player: PlayerPropType.isRequired,
-    leaderState: PropTypes.oneOf(['preset', 'set', 'not set']),
-    isLeader: PropTypes.bool.isRequired,
-    setAsLeader: PropTypes.func.isRequired,
-    isDefender: PropTypes.bool.isRequired,
-    setAsDefender: PropTypes.func.isRequired,
-    maxedDefenders: PropTypes.bool.isRequired,
-    newLevel: PropTypes.exact({ level: PropTypes.number.isRequired, active: PropTypes.bool.isRequired }),
-    delta: PropTypes.number
-}
 
 const calculateOutcome = (score, deckCount, maxDefenders, defenderCount) => {
     if (score === undefined)
@@ -94,20 +40,6 @@ const calculateNewLevel = (player, delta) => {
     if (player.level < 14 && level > 14) level = 14
     return { active: won, level }
 }
-
-const Benefit = ({ children }) => {
-    const classes = useStyles()
-    return <span className={classes.benefit}>({children})</span>
-}
-
-Benefit.propTypes = { children: PropTypes.node.isRequired }
-
-const Cost = ({ children }) => {
-    const classes = useStyles()
-    return <span className={classes.cost}>({children})</span>
-}
-
-Cost.propTypes = { children: PropTypes.node.isRequired }
 
 const anyoneWon = playerList => {
     for (let { level } of playerList) {
