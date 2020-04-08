@@ -3,6 +3,8 @@ import SimplePlayerStatus from '../subpages/calc/simplePlayerStatus'
 
 const localStorageKey = 'shengji-helper-profiles'
 
+const loadLevel = x => ({ level: x >> 1, active: (x & 0b1) === 0b1 })
+
 export const loadProfiles = window => Object.fromEntries(
     JSON.parse(window.localStorage.getItem(localStorageKey) || '[]')
         .map(profile => [profile.uuid, {
@@ -10,14 +12,16 @@ export const loadProfiles = window => Object.fromEntries(
             lastUsed: new Date(profile.lastUsed),
             partnership: (profile.floating ? 'floating' : 'fixed'),
             config: profile.config,
-            players: profile.players.map(player => ({
-                name: player[0],
-                level: player[1] >> 1,
-                active: (player[1] & 0b1) === 0b1
-            })),
-            leader: profile.leader
+            players: profile.players.map(player => ({ name: player[0], ...loadLevel(player[1]) })),
+            leader: profile.leader,
+            victors: profile.victors,
+            history: profile.history.map(
+                ([leader, score, ...levels]) => ({ leader, score, playerLevels: levels.map(loadLevel) })
+            )
         }])
 )
+
+const storeLevel = ({ level, active }) => (level << 1) | (active ? 0b1 : 0b0)
 
 export const saveProfiles = (profiles, window) => {
     window.localStorage.setItem(
@@ -29,9 +33,13 @@ export const saveProfiles = (profiles, window) => {
             floating: (profile.partnership === 'floating' ? 1 : 0),
             config: profile.config,
             players: profile.players.map(
-                player => [player.name, (player.level << 1) | (player.active ? 0b1 : 0b0)]
+                player => [player.name, storeLevel(player)]
             ),
-            leader: profile.leader
+            leader: profile.leader,
+            victors: profile.victors,
+            history: profile.history.map(
+                ({ leader, score, playerLevels }) => [leader, score, ...playerLevels.map(storeLevel)]
+            )
         })))
     )
 }
@@ -46,5 +54,13 @@ export const ProfilePropType = PropTypes.exact({
         perPlayer: PropTypes.number.isRequired,
         spares: PropTypes.number.isRequired
     }).isRequired,
-    leader: PropTypes.number.isRequired
+    leader: PropTypes.number.isRequired,
+    victors: PropTypes.arrayOf(PropTypes.number).isRequired,
+    history: PropTypes.arrayOf(PropTypes.exact({
+        leader: PropTypes.number.isRequired,
+        score: PropTypes.number,
+        playerLevels: PropTypes.arrayOf(PropTypes.exact({
+            level: PropTypes.number.isRequired, active: PropTypes.bool.isRequired
+        })).isRequired
+    })).isRequired
 })

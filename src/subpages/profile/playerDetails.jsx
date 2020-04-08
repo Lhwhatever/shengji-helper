@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { ChevronRight, Clear } from '@material-ui/icons'
+import { ChevronRight, Clear, Done } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/styles'
 import PropTypes from 'prop-types'
 import React, { useReducer, useRef, useState } from 'react'
@@ -7,6 +7,7 @@ import commonCls from '../../components/commonClasses'
 import { PaddedTable } from '../../components/table'
 import { ProfilePropType } from '../../helper/profiles'
 import PlayerRow, { Benefit, Cost } from './playerRow'
+import { navigate } from '@reach/router'
 
 const useStyles = makeStyles(theme => ({
     scoreInput: {
@@ -41,13 +42,11 @@ const calculateNewLevel = (player, delta) => {
     return { active: won, level }
 }
 
-const anyoneWon = playerList => {
-    for (let { level } of playerList) {
-        if (level > 14) return true
-    }
+const getVictors = playerList => playerList.reduce((partialList, player, i) => {
+    if (player.level > 14) partialList.push(i)
+    return partialList
+}, [])
 
-    return false
-}
 
 const PlayerDetails = ({ profile, onUpdate }) => {
     const classes = { ...commonCls(), ...useStyles() }
@@ -121,13 +120,26 @@ const PlayerDetails = ({ profile, onUpdate }) => {
         (player, i) => calculateNewLevel(player, defenders.players[i] ? defenderDelta : attackerDelta)
     )
 
-    const gameOver = anyoneWon(newLevels)
+    const victors = getVictors(newLevels)
 
     const handleScoreSave = () => {
-        onUpdate({ ...profile, players: profile.players.map((player, i) => ({ ...player, ...newLevels[i] })) })
+        onUpdate({
+            ...profile,
+            players: profile.players.map((player, i) => ({ ...player, ...newLevels[i] }))
+        })
         handleScoreClear()
         setLeader(-1)
         dispatchDefenders({ type: 'clear' })
+    }
+
+    const handleGameFinish = () => {
+        onUpdate({
+            ...profile,
+            players: profile.players.map((player, i) => ({ ...player, ...newLevels[i] })),
+            victors
+        })
+
+        navigate('/calc')
     }
 
     return (<Box>
@@ -209,9 +221,14 @@ const PlayerDetails = ({ profile, onUpdate }) => {
                     </>}
                     <Box className={classes.hContainer} mt={1}>
                         <Box className={classes.hExpand} />
-                        <Button color="primary" variant="contained" endIcon={<ChevronRight />}
-                            onClick={handleScoreSave}
-                        >Next Round</Button>
+                        {victors.length ?
+                            <Button color="primary" variant="contained" endIcon={<Done />}
+                                onClick={handleGameFinish}
+                            >Finish Game</Button> :
+                            <Button color="primary" variant="contained" endIcon={<ChevronRight />}
+                                onClick={handleScoreSave}
+                            >Next Round</Button>
+                        }
                     </Box>
                 </Paper>
                 }

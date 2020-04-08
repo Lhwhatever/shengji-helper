@@ -9,6 +9,7 @@ import Emoji from '../../components/emoji'
 import { HExpander } from '../../components/structs'
 import { ProfilePropType } from '../../helper/profiles'
 import SimplePlayerStatus from './simplePlayerStatus'
+import formatList from '../../helper/formatList'
 
 
 const useStyles = makeStyles(theme => ({
@@ -76,6 +77,12 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
                 <Emoji code="flower_playing_cards" mr={1} />
                 <Typography variant="body2">{profile.config.decks} decks ({profile.config.perPlayer} per player, {profile.config.spares} spare)</Typography>
             </Box>
+            {profile.victors.length > 0 &&
+                <Box className={classes.cardRow}>
+                    <Emoji code="trophy" mr={1} />
+                    <Typography variant="body2">Won by {formatList(profile.victors.map(key => profile.players[key].name))} </Typography>
+                </Box>
+            }
             <Box className={classes.cardRow}>
                 <Emoji code="busts_in_silhouette" mr={1} />
                 <Typography variant="body2">{profile.players.length} players ({profile.partnership} partnership)</Typography>

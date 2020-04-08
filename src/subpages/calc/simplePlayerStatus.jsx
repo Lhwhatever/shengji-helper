@@ -4,8 +4,8 @@ import React from 'react'
 import commonCls from '../../components/commonClasses'
 import { LevelDisplay } from '../../components/levels'
 import { PlayerPropType } from '../../components/player'
+import formatList from '../../helper/formatList'
 
-const formatList = array => array.reduce((a, e) => (a === null ? [e] : [...a, ', ', e]), null)
 
 const fixedPlayerNameList = (players, teamId, leaderId) =>
     players.map((player, i) => `${player.name}${(leaderId === i) ? ' (Leader)' : ''}`).filter((_, i) => (i % 2 === teamId))

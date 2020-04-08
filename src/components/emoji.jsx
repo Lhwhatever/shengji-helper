@@ -5,7 +5,8 @@ import React from 'react'
 const codes = {
     watch: '⌚',
     flower_playing_cards: '🎴',
-    busts_in_silhouette: '👥'
+    busts_in_silhouette: '👥',
+    trophy: '🏆'
 }
 
 const Emoji = props => (
