@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/core'
 import { PlayerPropType } from './player'
+import { Star } from '@material-ui/icons'
 
 const useStyles = makeStyles({
     activeLevel: {
@@ -10,9 +11,11 @@ const useStyles = makeStyles({
 })
 
 export const levels = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-export const normalDisplay = {
-    [2]: 2, [3]: 3, [4]: 4, [5]: 5, [6]: 6, [7]: 7, [8]: 8, [9]: 9, [10]: 10,
-    [11]: 11, [12]: 12, [13]: 13, [14]: 1
+
+export const normalDisplay = level => {
+    if (level < 14) return level
+    if (level === 14) return 1
+    return undefined
 }
 
 const LevelDisplay = props => {
@@ -20,7 +23,7 @@ const LevelDisplay = props => {
     const level = props.level || props.player.level || false
 
     const classes = useStyles()
-    return <span className={active ? classes.activeLevel : null}>{normalDisplay[level]}</span>
+    return <span className={active ? classes.activeLevel : null}>{normalDisplay(level) || <Star fontSize="inherit" />}</span>
 }
 
 LevelDisplay.propTypes = {
