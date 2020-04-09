@@ -32,7 +32,7 @@ const Planner = () => {
             className={classes.numOfPlayerField}
         />
         {numOfPlayers && (<Box className={classes.deckPlanner}>
-            <DeckPlanner numOfPlayers={numOfPlayers} config={gameConfig} setConfig={setGameConfig} />
+            <DeckPlanner numOfPlayers={numOfPlayers} config={gameConfig} setConfig={setGameConfig} dense />
         </Box>)}
     </Layout>)
 }
