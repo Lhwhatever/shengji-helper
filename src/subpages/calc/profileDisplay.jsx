@@ -53,7 +53,8 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
                         label="Profile Name"
                         inputRef={profileNameFieldRef}
                         defaultValue={profile.name}
-                        variant="filled"
+                        variant="outlined"
+                        size="small"
                         InputProps={{
                             endAdornment: (<InputAdornment position="end">
                                 <IconButton aria-label="done" onClick={doneEditingProfileName}>

@@ -76,10 +76,12 @@ const tick = <Done style={{ fontSize: 16 }} />
 
 const DeckPlannerRow = ({ row, config, size, onChange, ...props }) => {
     const classes = { ...commonCls(), ...useStyles() }
-    const active = configsEqual(row, config)
+    const active = configsEqual(row, config) || false
 
     return (<TableRow {...props} className={clsx(classes.clickable, active ? classes.selected : null)} onClick={onChange}>
-        <TableCell><Radio color="secondary" name="set-config-radio" checked={active} size={size} onChange={onChange} /></TableCell>
+        <TableCell><Radio color="secondary" size={size} name="set-config-radio"
+            checked={active} onChange={onChange}
+        /></TableCell>
         <TableCell>{row.decks}</TableCell>
         <TableCell>{row.totalCards}</TableCell>
         <TableCell>{row.cardsPerPlayer}</TableCell>
