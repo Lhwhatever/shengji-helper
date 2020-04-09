@@ -1,4 +1,4 @@
-import { makeStyles, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core'
+import { makeStyles, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@material-ui/core'
 import { blueGrey } from '@material-ui/core/colors'
 import { Done } from '@material-ui/icons'
 import clsx from 'clsx'
@@ -64,9 +64,7 @@ const getRowData = numOfPlayers => {
             })
             spareCards += numOfPlayers
         }
-    }
-
-    return rowData
+    } return rowData
 }
 
 const configsEqual = (x, y) => (
@@ -81,7 +79,9 @@ const DeckPlannerRow = ({ row, config, ...props }) => {
     const active = configsEqual(row, config)
 
     return (<TableRow {...props} className={clsx(classes.clickable, active ? classes.selected : null)}>
-        <TableCell><span className={classes.tick}>{active && tick}</span></TableCell>
+        <TableCell><Button variant="outlined" size="small" disabled={active}>
+            {active ? <span className={classes.tick}>{tick}</span> : 'Select'}
+        </Button></TableCell>
         <TableCell>{row.decks}</TableCell>
         <TableCell>{row.totalCards}</TableCell>
         <TableCell>{row.cardsPerPlayer}</TableCell>

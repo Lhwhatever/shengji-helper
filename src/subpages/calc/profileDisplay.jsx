@@ -107,7 +107,7 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
         </CardContent>
         <CardActions>
             <HExpander />
-            <Button onClick={useProfile} color="primary">Use</Button>
+            <Button onClick={useProfile} color="primary">Enter</Button>
             <Button onClick={deleteProfile} startIcon={<Delete />} color="secondary">Delete</Button>
         </CardActions>
     </Card>)
