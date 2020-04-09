@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import React from 'react'
 import commonCls from '../commonClasses'
-import { PaddedTable } from '../table'
+import { PaddedTable, DarkTableHead, HighlightableRow } from '../table'
 
 const CARDS_PER_DECK = 54
 const MIN_SPARE_RATIO = 0.2
@@ -18,6 +18,12 @@ const useStyles = makeStyles(theme => ({
         },
         '& table': {
             marginBottom: theme.spacing(0)
+        }
+    },
+    theadErr: {
+        backgroundColor: theme.palette.error.main,
+        '& th': {
+            color: theme.palette.error.contrastText,
         }
     },
     thead(props) {
@@ -78,7 +84,7 @@ const DeckPlannerRow = ({ row, config, size, onChange, ...props }) => {
     const classes = { ...commonCls(), ...useStyles() }
     const active = configsEqual(row, config) || false
 
-    return (<TableRow {...props} className={clsx(classes.clickable, active ? classes.selected : null)} onClick={onChange}>
+    return (<HighlightableRow {...props} className={classes.clickable} highlight={active} onClick={onChange}>
         <TableCell><Radio color="secondary" size={size} name="set-config-radio"
             checked={active} onChange={onChange}
         /></TableCell>
@@ -86,7 +92,7 @@ const DeckPlannerRow = ({ row, config, size, onChange, ...props }) => {
         <TableCell>{row.totalCards}</TableCell>
         <TableCell>{row.cardsPerPlayer}</TableCell>
         <TableCell>{row.spareCards}</TableCell>
-    </TableRow>)
+    </HighlightableRow>)
 }
 
 DeckPlannerRow.propTypes = {
@@ -101,14 +107,14 @@ DeckPlannerRow.propTypes = {
     onChange: PropTypes.func
 }
 
-const DeckPlanner = ({ config, setConfig, numOfPlayers, ...props }) => {
+const DeckPlanner = ({ config, setConfig, numOfPlayers, error, ...props }) => {
     const classes = { ...commonCls(), ...useStyles(props) }
     const rowData = getRowData(numOfPlayers)
     const size = props.dense ? 'small' : 'medium'
 
     return (<TableContainer component={Paper} className={classes.table}>
         <PaddedTable aria-label="table of decks" size={size}>
-            <TableHead align="center" className={classes.thead}>
+            <DarkTableHead align="center" className={error ? classes.theadErr : null}>
                 <TableRow>
                     <TableCell align="center">
                         <span className={clsx(classes.tick, classes.invisible)}>{tick}</span>
@@ -118,7 +124,7 @@ const DeckPlanner = ({ config, setConfig, numOfPlayers, ...props }) => {
                     <TableCell>Cards per Player</TableCell>
                     <TableCell>Spare Cards</TableCell>
                 </TableRow>
-            </TableHead>
+            </DarkTableHead>
             <TableBody>{
                 rowData.map(
                     (row, i) => {
