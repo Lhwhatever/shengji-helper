@@ -8,6 +8,7 @@ import { ButtonLink } from '../components/links'
 import Loading from '../components/loading'
 import { loadProfiles, ProfilePropType, saveProfiles } from '../helper/profiles'
 import PlayerDetails from '../subpages/profile/playerDetails'
+import GameHistory from '../subpages/profile/gameHistory'
 
 const activeProfileStorageKey = 'shengji-helper-active'
 const redirectTo = (window, dest) => window.location.replace(dest)
@@ -82,7 +83,10 @@ const Profile = ({ location }) => {
 
     return (<Layout header={<ProfileHeader profile={profileList && profileList[uuid]} />}>
         {(profileList && profileList[uuid]) ?
-            <PlayerDetails profile={profileList[uuid]} onUpdate={handleProfileUpdate} /> :
+            <>
+                <PlayerDetails profile={profileList[uuid]} onUpdate={handleProfileUpdate} mb={2} />
+                <GameHistory profile={profileList[uuid]} />
+            </> :
             <Loading />}
     </Layout>)
 }

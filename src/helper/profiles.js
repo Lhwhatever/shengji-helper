@@ -44,6 +44,14 @@ export const saveProfiles = (profiles, window) => {
     )
 }
 
+export const HistoryPropType = PropTypes.exact({
+    leader: PropTypes.number.isRequired,
+    score: PropTypes.number,
+    playerLevels: PropTypes.arrayOf(PropTypes.exact({
+        level: PropTypes.number.isRequired, active: PropTypes.bool.isRequired
+    })).isRequired
+})
+
 export const ProfilePropType = PropTypes.exact({
     name: PropTypes.string.isRequired,
     lastUsed: PropTypes.instanceOf(Date).isRequired,
@@ -56,11 +64,5 @@ export const ProfilePropType = PropTypes.exact({
     }).isRequired,
     leader: PropTypes.number.isRequired,
     victors: PropTypes.arrayOf(PropTypes.number).isRequired,
-    history: PropTypes.arrayOf(PropTypes.exact({
-        leader: PropTypes.number.isRequired,
-        score: PropTypes.number,
-        playerLevels: PropTypes.arrayOf(PropTypes.exact({
-            level: PropTypes.number.isRequired, active: PropTypes.bool.isRequired
-        })).isRequired
-    })).isRequired
+    history: PropTypes.arrayOf(HistoryPropType).isRequired
 })

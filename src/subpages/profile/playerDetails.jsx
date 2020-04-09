@@ -1,13 +1,13 @@
-import { Box, Button, IconButton, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, Button, IconButton, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from '@material-ui/core'
 import { ChevronRight, Clear, Done } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/styles'
+import { navigate } from '@reach/router'
 import PropTypes from 'prop-types'
 import React, { useReducer, useRef, useState } from 'react'
 import commonCls from '../../components/commonClasses'
-import { PaddedTable } from '../../components/table'
+import { DarkTableHead, PaddedTable } from '../../components/table'
 import { ProfilePropType } from '../../helper/profiles'
 import PlayerRow, { Benefit, Cost } from './playerRow'
-import { navigate } from '@reach/router'
 
 const useStyles = makeStyles(theme => ({
     scoreInput: {
@@ -48,10 +48,10 @@ const getVictors = playerList => playerList.reduce((partialList, player, i) => {
 }, [])
 
 
-const PlayerDetails = ({ profile, onUpdate }) => {
+const PlayerDetails = ({ profile, onUpdate, ...props }) => {
     const classes = { ...commonCls(), ...useStyles() }
 
-    const tableSize = useMediaQuery(useTheme().breakpoints.up('md')) ? 'medium' : 'small'
+    const tableSize = 'small'
     const [leader, setLeader] = useState(profile.leader)
 
     const maxDefenders = Math.floor(profile.players.length / 2)
@@ -125,7 +125,10 @@ const PlayerDetails = ({ profile, onUpdate }) => {
     const handleScoreSave = () => {
         onUpdate({
             ...profile,
-            players: profile.players.map((player, i) => ({ ...player, ...newLevels[i] }))
+            players: profile.players.map((player, i) => ({ ...player, ...newLevels[i] })),
+            history: [...profile.history, {
+                leader, score, playerLevels: profile.players.map(player => ({ level: player.level, active: player.active }))
+            }]
         })
         handleScoreClear()
         setLeader(-1)
@@ -142,10 +145,10 @@ const PlayerDetails = ({ profile, onUpdate }) => {
         navigate('/calc')
     }
 
-    return (<Box>
+    return (profile.victors.length <= 0 && <Box {...props}>
         <TableContainer component={Paper}>
             <PaddedTable size={tableSize}>
-                <TableHead>
+                <DarkTableHead>
                     <TableRow>
                         <TableCell>Player</TableCell>
                         <TableCell align="center">Level</TableCell>
@@ -156,7 +159,7 @@ const PlayerDetails = ({ profile, onUpdate }) => {
                         </Box></TableCell>
                         <TableCell>Next Game</TableCell>
                     </TableRow>
-                </TableHead>
+                </DarkTableHead>
                 <TableBody>
                     {profile.players.map((player, i) =>
                         <PlayerRow key={i} size={tableSize}

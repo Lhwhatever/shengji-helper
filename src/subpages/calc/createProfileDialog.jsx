@@ -323,13 +323,7 @@ const CreateProfileDialog = ({ open, setOpen, onFinish }) => {
                                 active: true
                             })),
                             victors: [],
-                            history: [{
-                                leader: -1, score: undefined,
-                                playerLevels: stepState.players.map(player => ({
-                                    level: player.level,
-                                    active: true
-                                }))
-                            }]
+                            history: []
                         }
                     })
                 }

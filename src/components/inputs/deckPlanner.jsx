@@ -1,11 +1,10 @@
-import { makeStyles, Paper, Radio, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core'
-import { blueGrey } from '@material-ui/core/colors'
+import { makeStyles, Paper, Radio, TableBody, TableCell, TableContainer, TableRow } from '@material-ui/core'
 import { Done } from '@material-ui/icons'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import React from 'react'
 import commonCls from '../commonClasses'
-import { PaddedTable, DarkTableHead, HighlightableRow } from '../table'
+import { DarkTableHead, HighlightableRow, PaddedTable } from '../table'
 
 const CARDS_PER_DECK = 54
 const MIN_SPARE_RATIO = 0.2
@@ -26,16 +25,6 @@ const useStyles = makeStyles(theme => ({
             color: theme.palette.error.contrastText,
         }
     },
-    thead(props) {
-        const palette = props.error ? theme.palette.error : theme.palette.primary
-
-        return {
-            backgroundColor: palette.main,
-            '& th': {
-                color: palette.contrastText
-            }
-        }
-    },
     tick: {
         display: 'flex',
         flex: '1 1 0',
@@ -44,9 +33,6 @@ const useStyles = makeStyles(theme => ({
     },
     clickable: {
         cursor: 'pointer'
-    },
-    selected: {
-        backgroundColor: blueGrey[50]
     }
 }))
 
