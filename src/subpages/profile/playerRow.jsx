@@ -1,10 +1,10 @@
-import { TableCell, TableRow, Radio, Checkbox, Box } from '@material-ui/core'
+import { Box, Checkbox, TableCell, TableRow } from '@material-ui/core'
+import { Star } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/styles'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { PlayerPropType } from '../../components/player'
 import { LevelDisplay } from '../../components/levels'
-import { Star } from '@material-ui/icons'
+import { PlayerPropType } from '../../components/player'
 
 const useStyles = makeStyles(theme => ({
     scoreInput: {
@@ -35,13 +35,6 @@ const PlayerRow = props => {
     return (<TableRow>
         <TableCell>{props.player.name}</TableCell>
         <TableCell align="center"><LevelDisplay player={props.player} /></TableCell>
-        <TableCell align="center">
-            {props.player.active &&
-                <Radio color="secondary" size={props.size}
-                    checked={props.isLeader} onChange={props.setAsLeader}
-                    name="set-leader-radio"
-                    disabled={props.leaderState === 'preset'} />}
-        </TableCell>
         <TableCell align="center">
             {props.leaderState !== 'not set' &&
                 <Checkbox color="secondary" size={props.size}
