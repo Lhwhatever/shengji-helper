@@ -1,4 +1,4 @@
-import { makeStyles, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@material-ui/core'
+import { makeStyles, Paper, Radio, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core'
 import { blueGrey } from '@material-ui/core/colors'
 import { Done } from '@material-ui/icons'
 import clsx from 'clsx'
@@ -74,14 +74,12 @@ const configsEqual = (x, y) => (
 
 const tick = <Done style={{ fontSize: 16 }} />
 
-const DeckPlannerRow = ({ row, config, ...props }) => {
+const DeckPlannerRow = ({ row, config, size, onChange, ...props }) => {
     const classes = { ...commonCls(), ...useStyles() }
     const active = configsEqual(row, config)
 
-    return (<TableRow {...props} className={clsx(classes.clickable, active ? classes.selected : null)}>
-        <TableCell><Button variant="outlined" size="small" disabled={active}>
-            {active ? <span className={classes.tick}>{tick}</span> : 'Select'}
-        </Button></TableCell>
+    return (<TableRow {...props} className={clsx(classes.clickable, active ? classes.selected : null)} onClick={onChange}>
+        <TableCell><Radio color="secondary" name="set-config-radio" checked={active} size={size} onChange={onChange} /></TableCell>
         <TableCell>{row.decks}</TableCell>
         <TableCell>{row.totalCards}</TableCell>
         <TableCell>{row.cardsPerPlayer}</TableCell>
@@ -96,15 +94,18 @@ DeckPlannerRow.propTypes = {
         cardsPerPlayer: PropTypes.number.isRequired,
         spareCards: PropTypes.number.isRequired
     }).isRequired,
-    config: PropTypes.object
+    config: PropTypes.object,
+    size: PropTypes.oneOf(['inherit', 'small', 'medium']),
+    onChange: PropTypes.func
 }
 
 const DeckPlanner = ({ config, setConfig, numOfPlayers, ...props }) => {
     const classes = { ...commonCls(), ...useStyles(props) }
     const rowData = getRowData(numOfPlayers)
+    const size = props.dense ? 'small' : 'medium'
 
     return (<TableContainer component={Paper} className={classes.table}>
-        <PaddedTable aria-label="table of decks" size={props.dense ? 'small' : 'medium'}>
+        <PaddedTable aria-label="table of decks" size={size}>
             <TableHead align="center" className={classes.thead}>
                 <TableRow>
                     <TableCell align="center">
@@ -118,7 +119,10 @@ const DeckPlanner = ({ config, setConfig, numOfPlayers, ...props }) => {
             </TableHead>
             <TableBody>{
                 rowData.map(
-                    (row, i) => <DeckPlannerRow row={row} config={config} key={i} onClick={() => setConfig(row)} />
+                    (row, i) => {
+                        const onChange = () => setConfig(row)
+                        return <DeckPlannerRow size={size} row={row} config={config} key={i} onChange={onChange} />
+                    }
                 )
             }</TableBody>
         </PaddedTable>
