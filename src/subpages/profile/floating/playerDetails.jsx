@@ -1,11 +1,12 @@
-import { Box, Button, Grid, IconButton, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableRow, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { ChevronRight, Clear, Done } from '@material-ui/icons'
+import { Box, Button, Grid, Paper, TableBody, TableCell, TableContainer, TableRow, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { ChevronRight, Done } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/styles'
 import { navigate } from '@reach/router'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
-import React, { useReducer, useRef, useState } from 'react'
+import React, { useReducer, useState } from 'react'
 import commonCls from '../../../components/commonClasses'
+import ScoreInput from '../../../components/inputs/scoreInput'
 import { DarkTableHead, PaddedTable } from '../../../components/table'
 import { ProfilePropType } from '../../../helper/profiles'
 import BiddingDialog from './biddingDialog'
@@ -96,28 +97,8 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
     const leaderState = profile.leader === -1 ? (leader === -1 ? 'not set' : 'set') : 'preset'
 
     const [score, setScore] = useState(undefined)
-
-    const scoreRef = useRef()
-    const handleScoreChange = () => {
-        if (!scoreRef.current.value.match(/^-?\d*$/))
-            scoreRef.current.value = (score === undefined ? '' : score.toString())
-
-        setScore(undefined)
-    }
-
-    const handleScoreUnfocus = () => {
-        if (scoreRef.current.value === '' || scoreRef.current.value === undefined)
-            setScore(undefined)
-        else {
-            const newScore = Math.round(parseInt(scoreRef.current.value) / 5) * 5
-            scoreRef.current.value = newScore.toString()
-            setScore(newScore)
-        }
-    }
-
-    const handleScoreClear = () => {
-        scoreRef.current.value = ''
-        setScore(undefined)
+    const handleScoreChange = score => {
+        setScore(score)
     }
 
     const { defenderMult, attackerDelta, defenderDelta } =
@@ -140,7 +121,7 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
                 leader, score, playerLevels: profile.players.map(player => ({ level: player.level, active: player.active }))
             }]
         })
-        handleScoreClear()
+        setScore(undefined)
         setLeader(-1)
         dispatchDefenders({ type: 'clear' })
         setBid({})
@@ -187,24 +168,9 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
             <Grid item xs={12} sm={3}>
                 <Box className={clsx(xs ? classes.hContainer : classes.vContainer, classes.scoreContainer)}>
                     {leader !== -1 && (<Box mb={2}>
-                        <TextField variant="filled" size={tableSize} className={classes.scoreInput}
-                            label="Score" type="number"
-                            inputProps={{ step: 5 }}
-                            inputRef={scoreRef}
-                            onChange={handleScoreChange}
-                            onBlur={handleScoreUnfocus}
-                            disabled={leader === -1}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton aria-label="clear score" onClick={handleScoreClear}><Clear /></IconButton>
-                                    </InputAdornment>
-                                ),
-                                inputProps: {
-                                    type: 'text',
-                                    pattern: /\d*/
-                                }
-                            }}
+                        <ScoreInput variant="filled" size={tableSize} className={classes.scoreInput}
+                            label="Score"
+                            onScoreChange={handleScoreChange}
                         /></Box>)}
                     <Box mb={2}>
                         <Button variant="contained" color="primary" onClick={() => setBiddingDialogOpen(true)}>Bidding</Button>
