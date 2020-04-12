@@ -21,7 +21,7 @@ RoundRow.propTypes = {
     round: HistoryPropType.isRequired
 }
 
-const PresentRoundRow = ({ players }) => (<HighlightableRow highlight>
+const PresentRoundRow = ({ players }) => (<HighlightableRow highlight={1}>
     <TableCell align="center">Now</TableCell>
     {players.map(player => <TableCell align="center" key={player.name}><LevelDisplay player={player} /></TableCell>)}
     <TableCell></TableCell>

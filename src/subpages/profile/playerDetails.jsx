@@ -130,7 +130,7 @@ const PlayerDetails = ({ profile, onUpdate, ...props }) => {
 
     const victors = getVictors(newLevels)
 
-    const [biddingDialogOpen, setBiddingDialogOpen] = useState()
+    const [biddingDialogOpen, setBiddingDialogOpen] = useState(false)
     const [bid, setBid] = useState({})
 
     const handleScoreSave = () => {

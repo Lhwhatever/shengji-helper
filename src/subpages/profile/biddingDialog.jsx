@@ -112,7 +112,7 @@ const BiddingDialog = ({ open, setOpen, bid, setBid, playerList, onLeaderChange 
 BiddingDialog.propTypes = {
     open: PropTypes.bool.isRequired,
     setOpen: PropTypes.func.isRequired,
-    bid: BiddingTableRow.bid,
+    bid: BiddingTableRow.propTypes.bid,
     setBid: PropTypes.func.isRequired,
     playerList: PropTypes.arrayOf(PlayerPropType).isRequired,
     onLeaderChange: PropTypes.func.isRequired

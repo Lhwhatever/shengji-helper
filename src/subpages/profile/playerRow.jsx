@@ -59,7 +59,6 @@ PlayerRow.propTypes = {
     player: PlayerPropType.isRequired,
     leaderState: PropTypes.oneOf(['preset', 'set', 'not set']),
     isLeader: PropTypes.bool.isRequired,
-    setAsLeader: PropTypes.func.isRequired,
     isDefender: PropTypes.bool.isRequired,
     setAsDefender: PropTypes.func.isRequired,
     maxedDefenders: PropTypes.bool.isRequired,

@@ -70,7 +70,7 @@ const DeckPlannerRow = ({ row, config, size, onChange, ...props }) => {
     const classes = { ...commonCls(), ...useStyles() }
     const active = configsEqual(row, config) || false
 
-    return (<HighlightableRow {...props} className={classes.clickable} highlight={active} onClick={onChange}>
+    return (<HighlightableRow {...props} className={classes.clickable} highlight={active ? 1 : 0} onClick={onChange}>
         <TableCell><Radio color="secondary" size={size} name="set-config-radio"
             checked={active} onChange={onChange}
         /></TableCell>

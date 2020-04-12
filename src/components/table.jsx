@@ -23,34 +23,31 @@ const useStyles = makeStyles(theme => ({
     })
 }))
 
-const makeStyledVariant = (defaultComponent, useStyles, classNameKey, propsToInject) => function ({ component, className, ...props }) {
-    const classes = useStyles(props)
-    return React.createElement(component || defaultComponent, {
-        ...props,
-        className: clsx(classes[classNameKey], className),
-        ...(propsToInject || {})
-    })
+const makeStyledVariant = (defaultComponent, useStyles, classNameKey, name, propsToInject) => {
+    var component = function ({ component, className, ...props }) {
+        const classes = useStyles(props)
+        return React.createElement(component || defaultComponent, {
+            ...props,
+            className: clsx(classes[classNameKey], className),
+            ...(propsToInject || {})
+        })
+    }
+
+    component.propTypes = {
+        component: PropTypes.elementType,
+        className: PropTypes.any
+    }
+
+    component.displayName = name
+    return component
 }
 
+const PaddedTable = makeStyledVariant(MuiTable, useStyles, 'paddedTable', 'PaddedTable')
 
-const PaddedTable = makeStyledVariant(MuiTable, useStyles, 'paddedTable')
-PaddedTable.propTypes = {
-    component: PropTypes.elementType,
-    className: PropTypes.any
-}
+const DarkTableHead = makeStyledVariant(MuiTableHeader, useStyles, 'darkHeader', 'DarkTableHead')
 
-const DarkTableHead = makeStyledVariant(MuiTableHeader, useStyles, 'darkHeader')
-DarkTableHead.propTypes = {
-    component: PropTypes.elementType,
-    className: PropTypes.any
-}
-
-const HighlightableRow = makeStyledVariant(MuiTableRow, useStyles, 'highlightedRow')
-HighlightableRow.propTypes = {
-    component: PropTypes.elementType,
-    className: PropTypes.any,
-    highlight: PropTypes.bool
-}
+const HighlightableRow = makeStyledVariant(MuiTableRow, useStyles, 'highlightedRow', 'HighlightableRow')
+HighlightableRow.propTypes.highlight = PropTypes.any
 
 export { PaddedTable, DarkTableHead, HighlightableRow }
 
