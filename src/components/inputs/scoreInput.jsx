@@ -1,80 +1,93 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { TextField, InputAdornment, IconButton } from '@material-ui/core'
+import { IconButton, InputAdornment, TextField } from '@material-ui/core'
 import { Clear } from '@material-ui/icons'
-import { useRef } from 'react'
-import { useState } from 'react'
+import PropTypes from 'prop-types'
+import React, { useRef, useState } from 'react'
 
-const ScoreInput = props => {
-    const [value, setValue] = useState()
+const ScoreInput = ({ value, onChange, label, ...props }) => {
+    const [memory, setMemory] = useState(value)
+    const [hasShrinkedLabel, shrinkLabel] = useState(value === '')
+    const inputRef = useRef()
 
-    const scoreRef = useRef(value === undefined ? '' : value.toString())
-    const onScoreChange = props.onScoreChange || (() => { })
-    const onChange = score => {
-        onScoreChange(score)
-        setValue(score)
+    const safeOnChange = onChange || (() => { })
+
+    const handleFocus = () => {
+        shrinkLabel(true)
     }
 
-    const [doLabelShrink, setLabelShrink] = useState()
-
-    const handleScoreFocus = () => {
-        setLabelShrink(true)
-    }
-
-    const handleScoreChange = () => {
-        if (!scoreRef.current.value.match(/^-?\d*$/))
-            scoreRef.current.value = (value === undefined ? '' : value.toString())
-        else {
-            setValue(parseInt(scoreRef.current.value))
-            onScoreChange(undefined)
-        }
-    }
-
-    const handleScoreUnfocus = () => {
-        if (scoreRef.current.value === '' || scoreRef.current.value === undefined) {
-            onChange(undefined)
-            setLabelShrink(false)
+    const handleChange = () => {
+        safeOnChange(undefined)
+        if (inputRef.current.value === '') {
+            setMemory(null)
+        } else if (inputRef.current.value.match(/^-?\d+$/g)) {
+            setMemory(parseInt(inputRef.current.value))
         } else {
-            const newScore = Math.round(parseInt(scoreRef.current.value) / 5) * 5
-            scoreRef.current.value = newScore.toString()
-            onChange(newScore)
+            inputRef.current.value = memory === null ? '' : memory.toString()
         }
     }
 
-    const handleScoreClear = () => {
-        scoreRef.current.value = ''
-        setLabelShrink(false)
-        onChange(undefined)
+    const handleBlur = () => {
+        if (inputRef.current.value === '') {
+            shrinkLabel(null)
+        } else {
+            const newValue = Math.round(parseInt(inputRef.current.value) / 5) * 5
+            inputRef.current.value = newValue.toString()
+            setMemory(newValue)
+            safeOnChange(newValue)
+        }
+    }
+
+    const handleClear = () => {
+        inputRef.current.value = ''
+        setMemory(null)
+        safeOnChange(null)
+        shrinkLabel(false)
+    }
+
+    if (value !== undefined && value !== memory) {
+        if (value === null) {
+            inputRef.current.value = ''
+            shrinkLabel(false)
+            setMemory(null)
+        } else {
+            const valueAsNum = typeof value === 'number' ? value : parseInt(value)
+            if (!isNaN(valueAsNum)) {
+                const newValue = Math.round(valueAsNum / 5) * 5
+                inputRef.current.value = newValue.toString()
+                setMemory(newValue)
+                safeOnChange(newValue)
+                shrinkLabel(true)
+            } else {
+                safeOnChange(memory)
+            }
+        }
     }
 
     return (<TextField
-        label={props.label || 'Score'}
-        inputRef={scoreRef}
+        label={label || 'Score'}
+        inputRef={inputRef}
+        InputLabelProps={{ shrink: hasShrinkedLabel }}
+        onFocus={handleFocus}
+        onChange={handleChange}
+        onBlur={handleBlur}
         InputProps={{
             endAdornment: (
                 <InputAdornment position="end">
-                    <IconButton aria-label="clear score" onClick={handleScoreClear}><Clear /></IconButton>
+                    <IconButton aria-label="clear score" onClick={handleClear}><Clear fontSize="inherit" /></IconButton>
                 </InputAdornment>
             ),
             inputProps: {
-                type: 'text',
-                pattern: /\d*/,
+                type: 'number',
                 step: 5
             }
         }}
-        type="number"
-        onFocus={handleScoreFocus}
-        onChange={handleScoreChange}
-        onBlur={handleScoreUnfocus}
-        InputLabelProps={{ shrink: doLabelShrink }}
         {...props}
     />)
 }
 
 ScoreInput.propTypes = {
     label: PropTypes.string,
-    onScoreChange: PropTypes.func,
-    handleScoreClear: PropTypes.func
+    value: PropTypes.number,
+    onChange: PropTypes.func
 }
 
 export default ScoreInput

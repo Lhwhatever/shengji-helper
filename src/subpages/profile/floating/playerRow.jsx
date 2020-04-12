@@ -1,38 +1,15 @@
-import { Box, Checkbox, TableCell, TableRow } from '@material-ui/core'
-import { Star } from '@material-ui/icons'
-import { makeStyles } from '@material-ui/styles'
+import { Checkbox, TableCell, TableRow } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { LevelDisplay } from '../../../components/levels'
 import { PlayerPropType } from '../../../components/player'
-
-const useStyles = makeStyles(theme => ({
-    scoreInput: {
-        minWidth: '25%',
-        maxWidth: 135
-    },
-    outcomeBox: {
-        flex: 2,
-        padding: theme.spacing(1)
-    },
-    benefit: {
-        color: theme.palette.primary.main,
-        fontWeight: 'bold'
-    },
-    cost: {
-        color: theme.palette.secondary.main,
-        fontWeight: 'bold'
-    },
-    victory: {
-        display: 'flex',
-        alignItems: 'center'
-    }
-}))
+import { Benefit, Cost, Victory } from '../styles'
+import { HighlightableRow } from '../../../components/table'
 
 const PlayerRow = props => {
     const handleDefenderChange = event => props.setAsDefender(event.target.checked)
 
-    return (<TableRow>
+    return (<HighlightableRow highlight={props.isLeader ? 1 : 0}>
         <TableCell>{props.player.name}</TableCell>
         <TableCell align="center"><LevelDisplay player={props.player} /></TableCell>
         <TableCell align="center">
@@ -50,7 +27,7 @@ const PlayerRow = props => {
                 {props.delta === 0 && props.player.active && <Cost>↓</Cost>}
             </>)}
         </TableCell>
-    </TableRow>)
+    </HighlightableRow>)
 }
 
 
@@ -66,27 +43,5 @@ PlayerRow.propTypes = {
     delta: PropTypes.number
 }
 
-const Benefit = ({ children }) => {
-    const classes = useStyles()
-    return <span className={classes.benefit}>({children})</span>
-}
-
-Benefit.propTypes = { children: PropTypes.node.isRequired }
-
-const Cost = ({ children }) => {
-    const classes = useStyles()
-    return <span className={classes.cost}>({children})</span>
-}
-
-Cost.propTypes = { children: PropTypes.node.isRequired }
-
-const Victory = ({ size }) => {
-    const classes = useStyles()
-    return <Box className={classes.victory}><Star fontSize={size || 'small'} /><Box component="span" ml={0.25} mt={0.25}>Victory</Box></Box>
-}
-
-Victory.propTypes = { size: PropTypes.oneOf(['small', 'medium']) }
-
 export default PlayerRow
-export { Benefit, Cost }
 
