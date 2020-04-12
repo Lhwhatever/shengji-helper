@@ -1,8 +1,9 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Paper, Radio, TableBody, TableCell, TableContainer, TableRow, Typography } from '@material-ui/core'
+import { Button, DialogActions, DialogContent, DialogTitle, FormControlLabel, Paper, Radio, TableBody, TableCell, TableContainer, TableRow, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { LevelDisplay } from '../../components/levels'
 import { PlayerPropType } from '../../components/player'
+import ResponsiveDialog from '../../components/responsiveDialog'
 import { DarkTableHead, PaddedTable } from '../../components/table'
 
 const calculateBiddingTable = playerList => {
@@ -75,7 +76,7 @@ const BiddingDialog = ({ open, setOpen, bid, setBid, playerList, onLeaderChange 
         onLeaderChange(biddingTable[bidder][bid])
     }
 
-    return (<Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+    return (<ResponsiveDialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle>Bidding</DialogTitle>
         <DialogContent>
             <Typography variant="body2">The following table shows the options each player may bid, and the resultant leader. Tap on the corresponding option to select the bidder and the bid.</Typography>
@@ -106,7 +107,7 @@ const BiddingDialog = ({ open, setOpen, bid, setBid, playerList, onLeaderChange 
         <DialogActions>
             <Button variant="contained" color="primary" onClick={handleClose}>Close</Button>
         </DialogActions>
-    </Dialog>)
+    </ResponsiveDialog>)
 }
 
 BiddingDialog.propTypes = {

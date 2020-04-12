@@ -1,9 +1,10 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MobileStepper, Step, StepLabel, Stepper, useMediaQuery, useTheme, makeStyles } from '@material-ui/core'
+import { Button, DialogActions, DialogContent, DialogTitle, IconButton, makeStyles, MobileStepper, Step, StepLabel, Stepper, useMediaQuery, useTheme } from '@material-ui/core'
 import { Close, Done, NavigateBefore, NavigateNext } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
 import setMember from '../helper/setMember'
 import commonCls from './commonClasses'
+import ResponsiveDialog from './responsiveDialog'
 import { HExpander } from './structs'
 
 const useStyles = makeStyles(theme => ({
@@ -202,7 +203,7 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
         }
     }, [done, onFinish, wizardState, wizardStateDispatcher, setOpen])
 
-    return (<Dialog fullScreen={mobile} open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
+    return (<ResponsiveDialog open={open} onClose={handleCancel} aria-labelledby="form-dialog-title">
         {mobile ?
             <DialogTitle><IconButton aria-label="quit" onClick={handleCancel} className={classes.mBtnClose}><Close /></IconButton>{title || 'Quit'}</DialogTitle> :
             (title && <>
@@ -225,7 +226,7 @@ const DialogWizard = ({ open, setOpen, steps, title, initializerArg, initializer
                 last
             }
         )}
-    </Dialog>)
+    </ResponsiveDialog>)
 }
 
 DialogWizard.propTypes = {
