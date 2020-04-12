@@ -6,8 +6,14 @@ import { useRef } from 'react'
 import { useState } from 'react'
 
 const ScoreInput = props => {
-    const scoreRef = useRef(props.value === undefined ? '' : props.value.toString())
-    const onChange = props.onScoreChange || (() => { })
+    const [value, setValue] = useState()
+
+    const scoreRef = useRef(value === undefined ? '' : value.toString())
+    const onScoreChange = props.onScoreChange || (() => { })
+    const onChange = score => {
+        onScoreChange(score)
+        setValue(score)
+    }
 
     const [doLabelShrink, setLabelShrink] = useState()
 
@@ -17,8 +23,11 @@ const ScoreInput = props => {
 
     const handleScoreChange = () => {
         if (!scoreRef.current.value.match(/^-?\d*$/))
-            scoreRef.current.value = (props.value === undefined ? '' : props.value.toString())
-        else onChange(undefined)
+            scoreRef.current.value = (value === undefined ? '' : value.toString())
+        else {
+            setValue(parseInt(scoreRef.current.value))
+            onScoreChange(undefined)
+        }
     }
 
     const handleScoreUnfocus = () => {
@@ -64,7 +73,6 @@ const ScoreInput = props => {
 
 ScoreInput.propTypes = {
     label: PropTypes.string,
-    value: PropTypes.number,
     onScoreChange: PropTypes.func,
     handleScoreClear: PropTypes.func
 }
