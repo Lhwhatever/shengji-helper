@@ -1,15 +1,15 @@
-import { Box, Button, IconButton, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableRow, TextField, Typography, Grid, useMediaQuery, useTheme } from '@material-ui/core'
-import clsx from 'clsx'
+import { Box, Button, Grid, IconButton, InputAdornment, Paper, TableBody, TableCell, TableContainer, TableRow, TextField, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { ChevronRight, Clear, Done } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/styles'
 import { navigate } from '@reach/router'
+import clsx from 'clsx'
 import PropTypes from 'prop-types'
 import React, { useReducer, useRef, useState } from 'react'
-import commonCls from '../../components/commonClasses'
-import { DarkTableHead, PaddedTable } from '../../components/table'
-import { ProfilePropType } from '../../helper/profiles'
-import PlayerRow, { Benefit, Cost } from './playerRow'
+import commonCls from '../../../components/commonClasses'
+import { DarkTableHead, PaddedTable } from '../../../components/table'
+import { ProfilePropType } from '../../../helper/profiles'
 import BiddingDialog from './biddingDialog'
+import PlayerRow, { Benefit, Cost } from './playerRow'
 
 const useStyles = makeStyles(theme => ({
     scoreInput: {
@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
         'overflow-y': 'hidden'
     },
     scoreContainer: {
-        alignItems: 'center'
+        alignItems: 'center',
     }
 }))
 

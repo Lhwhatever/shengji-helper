@@ -1,10 +1,10 @@
 import { Button, DialogActions, DialogContent, DialogTitle, FormControlLabel, Paper, Radio, TableBody, TableCell, TableContainer, TableRow, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { LevelDisplay } from '../../components/levels'
-import { PlayerPropType } from '../../components/player'
-import ResponsiveDialog from '../../components/responsiveDialog'
-import { DarkTableHead, PaddedTable } from '../../components/table'
+import { LevelDisplay } from '../../../components/levels'
+import { PlayerPropType } from '../../../components/player'
+import ResponsiveDialog from '../../../components/responsiveDialog'
+import { DarkTableHead, PaddedTable } from '../../../components/table'
 
 const calculateBiddingTable = playerList => {
     let optionsBitfield = 0b0

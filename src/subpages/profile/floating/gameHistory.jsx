@@ -1,10 +1,10 @@
 import { Box, Paper, TableBody, TableCell, TableContainer, TableRow, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { LevelDisplay } from '../../components/levels'
-import { PlayerPropType } from '../../components/player'
-import { DarkTableHead, HighlightableRow, PaddedTable } from '../../components/table'
-import { HistoryPropType, ProfilePropType } from '../../helper/profiles'
+import { LevelDisplay } from '../../../components/levels'
+import { PlayerPropType } from '../../../components/player'
+import { DarkTableHead, HighlightableRow, PaddedTable } from '../../../components/table'
+import { HistoryPropType, ProfilePropType } from '../../../helper/profiles'
 
 const OutlinedPaper = props => <Paper {...props} variant="outlined" />
 

@@ -3,8 +3,8 @@ import { Star } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/styles'
 import PropTypes from 'prop-types'
 import React from 'react'
-import { LevelDisplay } from '../../components/levels'
-import { PlayerPropType } from '../../components/player'
+import { LevelDisplay } from '../../../components/levels'
+import { PlayerPropType } from '../../../components/player'
 
 const useStyles = makeStyles(theme => ({
     scoreInput: {
