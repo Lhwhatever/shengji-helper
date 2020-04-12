@@ -1,6 +1,5 @@
 import { Box, Button, Paper, TableBody, TableCell, TableContainer, TableRow, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { ChevronRight, Done } from '@material-ui/icons'
-import { makeStyles } from '@material-ui/styles'
 import { navigate } from '@reach/router'
 import clsx from 'clsx'
 import PropTypes from 'prop-types'
@@ -9,33 +8,12 @@ import commonCls from '../../../components/commonClasses'
 import ScoreInput from '../../../components/inputs/scoreInput'
 import { DarkTableHead, PaddedTable } from '../../../components/table'
 import { ProfilePropType } from '../../../helper/profiles'
+import { Benefit, Cost, playerDetailStyles } from '../styles'
 import BiddingDialog from './biddingDialog'
-import PlayerRow, { Benefit, Cost } from './playerRow'
-
-const useStyles = makeStyles(theme => ({
-    scoreInput: {
-        width: 115,
-    },
-    outcomeBox: {
-        padding: theme.spacing(1)
-    },
-    scoreContainer: {
-        flexBasis: 'fit-content'
-    },
-    biddingBtnContainer: props => ({
-        [theme.breakpoints.down('xs')]: {
-            marginLeft: theme.spacing(2),
-            alignSelf: 'center'
-        },
-        [theme.breakpoints.up('sm')]: {
-            marginTop: theme.spacing(props.leader === -1 ? 0 : 2),
-            alignSelf: 'flex-end'
-        }
-    })
-}))
+import PlayerRow from './playerRow'
 
 const calculateOutcome = (score, deckCount, maxDefenders, defenderCount) => {
-    if (score === undefined)
+    if (score === undefined || score === null)
         return { defenderMult: undefined, attackerDelta: undefined, defenderDelta: undefined }
 
     const scoreSteps = (score <= 0) ? 0 : Math.min(Math.floor(score / 20 / deckCount) + 1, 6)
@@ -126,7 +104,7 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
                 leader, score, playerLevels: profile.players.map(player => ({ level: player.level, active: player.active }))
             }]
         })
-        setScore(undefined)
+        setScore(null)
         setLeader(-1)
         dispatchDefenders({ type: 'clear' })
         setBid({})
@@ -142,10 +120,10 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
         navigate('/calc')
     }
 
-    const classes = { ...commonCls(), ...useStyles({ leader }) }
+    const classes = { ...commonCls(), ...playerDetailStyles({ leader }) }
 
-    return (<Paper {...props}>
-        <TableContainer component={Box}>
+    return (<Box {...props}>
+        <TableContainer component={Paper}>
             <PaddedTable size={tableSize}>
                 <DarkTableHead>
                     <TableRow>
@@ -169,70 +147,69 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
                         />)}
                 </TableBody>
             </PaddedTable>
-        </TableContainer>
-        <Box m={2} className={xs ? classes.vContainer : classes.hContainer}>
-            <Box mr={2} mb={2} className={clsx(xs ? classes.hContainer : classes.vContainer, classes.scoreContainer)}>
-                {leader !== -1 && (<Box>
-                    <ScoreInput variant="filled" size={tableSize} className={classes.scoreInput}
+            <Box m={2} className={xs ? classes.vContainer : classes.hContainer}>
+                <Box mr={2} className={clsx(xs ? classes.hContainer : classes.vContainer, classes.scoreContainer)}>
+                    {leader !== -1 && (<ScoreInput variant="filled" size={tableSize} className={classes.scoreInput}
                         label="Score"
-                        onScoreChange={handleScoreChange}
-                    /></Box>)}
-                <Box className={classes.biddingBtnContainer}>
-                    <Button variant="contained" color="primary" onClick={() => setBiddingDialogOpen(true)}>Bidding</Button>
+                        value={score} onChange={handleScoreChange}
+                    />)}
+                    <Box className={classes.biddingBtnContainer}>
+                        <Button variant="contained" color="primary" onClick={() => setBiddingDialogOpen(true)}>Bidding</Button>
+                    </Box>
                 </Box>
+                {defenderMult && defenders.count > 0 && (<Paper variant="outlined" className={classes.outcomeBox}>
+                    <Typography variant="h6">Round Outcome</Typography>
+                    {defenderDelta > 0 && <>
+                        <Typography variant="body2">Score {'<'}{profile.config.decks * 40} points <Benefit>Defenders win, +1 level</Benefit> <Cost>Attackers inactive</Cost></Typography>
+                        {defenderDelta > defenderMult &&
+                            <Typography variant="body2">Score {'<'}{profile.config.decks * 20} points <Benefit>Defenders +1 level</Benefit></Typography>
+                        }
+                        {score <= 0 &&
+                            <Typography variant="body2">Score 0 points <Benefit>Defenders +1 level</Benefit></Typography>
+                        }
+                        {defenderMult == 2 &&
+                            <Typography variant="body2">1 less defender than usual <Benefit>Level gain ×2</Benefit></Typography>
+                        }
+                        {defenderMult > 2 &&
+                            <Typography variant="body2">{defenderMult - 1} less defenders than usual <Benefit>Level gain ×{defenderMult}</Benefit></Typography>
+                        }
+                        <Typography variant="body2">Inactive defenders become active <Cost>-1 level gain if inactive</Cost></Typography>
+                    </>}
+                    {attackerDelta > 0 && <>
+                        <Typography variant="body2">Score ≥{profile.config.decks * 40} points <Benefit>Attackers win, +1 level</Benefit> <Cost>Defenders inactive</Cost></Typography>
+                        {attackerDelta > 1 &&
+                            <Typography variant="body2">Score ≥{profile.config.decks * 60} points <Benefit>Attackers +1 level</Benefit></Typography>
+                        }
+                        {attackerDelta > 2 &&
+                            <Typography variant="body2">Score ≥{profile.config.decks * 80} points <Benefit>Attackers +1 level</Benefit></Typography>
+                        }
+                        {attackerDelta > 3 &&
+                            <Typography variant="body2">Score ≥{profile.config.decks * 100} points <Benefit>Attackers +1 level</Benefit></Typography>
+                        }
+                        <Typography variant="body2">Inactive attackers become active <Cost>-1 level gain if inactive</Cost></Typography>
+                    </>}
+                    <Box className={classes.hContainer} mt={1}>
+                        <Box className={classes.hExpand} />
+                        {victors.length ?
+                            (<Button color="primary" variant="contained" endIcon={<Done />}
+                                onClick={handleGameFinish}
+                            >Finish Game</Button>)
+                            : (<Button color="primary" variant="contained" endIcon={<ChevronRight />}
+                                onClick={handleScoreSave}
+                            >Next Round</Button>)
+                        }
+                    </Box>
+                </Paper>)
+                }
             </Box>
-            {defenderMult && defenders.count > 0 && (<Box mb={2}><Paper variant="outlined" className={classes.outcomeBox}>
-                <Typography variant="h6">Round Outcome</Typography>
-                {defenderDelta > 0 && <>
-                    <Typography variant="body2">Score {'<'}{profile.config.decks * 40} points <Benefit>Defenders win, +1 level</Benefit> <Cost>Attackers inactive</Cost></Typography>
-                    {defenderDelta > defenderMult &&
-                        <Typography variant="body2">Score {'<'}{profile.config.decks * 20} points <Benefit>Defenders +1 level</Benefit></Typography>
-                    }
-                    {score <= 0 &&
-                        <Typography variant="body2">Score 0 points <Benefit>Defenders +1 level</Benefit></Typography>
-                    }
-                    {defenderMult == 2 &&
-                        <Typography variant="body2">1 less defender than usual <Benefit>Level gain ×2</Benefit></Typography>
-                    }
-                    {defenderMult > 2 &&
-                        <Typography variant="body2">{defenderMult - 1} less defenders than usual <Benefit>Level gain ×{defenderMult}</Benefit></Typography>
-                    }
-                    <Typography variant="body2">Inactive defenders become active <Cost>-1 level gain if inactive</Cost></Typography>
-                </>}
-                {attackerDelta > 0 && <>
-                    <Typography variant="body2">Score ≥{profile.config.decks * 40} points <Benefit>Attackers win, +1 level</Benefit> <Cost>Defenders inactive</Cost></Typography>
-                    {attackerDelta > 1 &&
-                        <Typography variant="body2">Score ≥{profile.config.decks * 60} points <Benefit>Attackers +1 level</Benefit></Typography>
-                    }
-                    {attackerDelta > 2 &&
-                        <Typography variant="body2">Score ≥{profile.config.decks * 80} points <Benefit>Attackers +1 level</Benefit></Typography>
-                    }
-                    {attackerDelta > 3 &&
-                        <Typography variant="body2">Score ≥{profile.config.decks * 100} points <Benefit>Attackers +1 level</Benefit></Typography>
-                    }
-                    <Typography variant="body2">Inactive attackers become active <Cost>-1 level gain if inactive</Cost></Typography>
-                </>}
-                <Box className={classes.hContainer} mt={1}>
-                    <Box className={classes.hExpand} />
-                    {victors.length ?
-                        <Button color="primary" variant="contained" endIcon={<Done />}
-                            onClick={handleGameFinish}
-                        >Finish Game</Button> :
-                        <Button color="primary" variant="contained" endIcon={<ChevronRight />}
-                            onClick={handleScoreSave}
-                        >Next Round</Button>
-                    }
-                </Box>
-            </Paper></Box>)
-            }
-        </Box>
+        </TableContainer>
         <BiddingDialog
             open={biddingDialogOpen} setOpen={setBiddingDialogOpen}
             bid={bid} setBid={setBid}
             playerList={profile.players}
             onLeaderChange={handleLeaderChange}
         />
-    </Paper>)
+    </Box>)
 }
 
 PlayerDetails.propTypes = {

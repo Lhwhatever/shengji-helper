@@ -1,0 +1,168 @@
+import { Box, Button, Paper, TableBody, TableCell, TableContainer, TableRow, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import PropTypes from 'prop-types'
+import React, { useState } from 'react'
+import commonCls from '../../../components/commonClasses'
+import ScoreInput from '../../../components/inputs/scoreInput'
+import { DarkTableHead, PaddedTable } from '../../../components/table'
+import { ProfilePropType } from '../../../helper/profiles'
+import { Benefit, playerDetailStyles } from '../styles'
+import FirstRoundDialog from './firstRoundDialog'
+import PlayerRow from './playerRow'
+import { Done, ChevronRight } from '@material-ui/icons'
+import { navigate } from 'gatsby'
+
+const calculateSteps = (score, decks) => {
+    if (score === undefined || score === null) return undefined
+    if (score <= 0) return 0
+    return Math.min(Math.floor(score / 20 / decks), 5) + 1
+}
+
+const calculateNewLevels = (team0Level, team1Level, steps, leader) => {
+    let newTeam0Lvl, newTeam1Lvl
+    if (leader % 2 === 0) {
+        newTeam0Lvl = team0Level + Math.max(3 - steps, 0)
+        newTeam1Lvl = team1Level + Math.max(steps - 3, 0)
+    } else {
+        newTeam0Lvl = team0Level + Math.max(steps - 3, 0)
+        newTeam1Lvl = team1Level + Math.max(3 - steps, 0)
+    }
+
+    if (team0Level < 14 && newTeam0Lvl > 14) newTeam0Lvl = 14
+    if (team1Level < 14 && newTeam1Lvl > 14) newTeam1Lvl = 14
+
+    return [newTeam0Lvl, newTeam1Lvl]
+}
+
+const PlayerDetails = ({ profile, tableSize, onUpdate, ...props }) => {
+    const mobile = useMediaQuery(useTheme().breakpoints.down('xs'))
+
+    const [leader, setLeader] = useState(profile.leader)
+
+    const isFirstRound = profile.leader === -1
+    const [firstRoundDialogOpen, setFirstRoundDialogOpen] = useState(isFirstRound)
+
+    const [score, setScore] = useState(undefined)
+    const handleScoreChange = setScore
+    const steps = calculateSteps(score, profile.config.decks)
+
+    const nextLeader = steps === undefined ? undefined : ((leader + (steps < 3 ? 2 : 1)) % profile.players.length)
+    const cutFirst = steps === undefined ? undefined : ((leader + (steps < 3 ? 1 : 0)) % profile.players.length)
+
+    const newLevels = calculateNewLevels(profile.players[0].level, profile.players[1].level, steps, leader)
+    const willEnd = newLevels[0] > 14 || newLevels[1] > 14
+
+    const classes = { ...commonCls(), ...playerDetailStyles() }
+
+    const handleScoreSave = () => {
+        onUpdate({
+            ...profile,
+            players: profile.players.map((player, i) => ({
+                name: player.name, level: newLevels[i % 2], active: nextLeader % 2 === i % 2
+            })),
+            leader: nextLeader,
+            history: [...profile.history, {
+                leader, score, playerLevels: profile.players.map(player => ({ level: player.level, active: player.active }))
+            }]
+        })
+        setScore(null)
+        setLeader(nextLeader)
+    }
+
+    const handleGameFinish = () => {
+        onUpdate({
+            ...profile,
+            players: profile.players.map((player, i) => ({
+                name: player.name, level: newLevels[i % 2], active: nextLeader % 2 === i % 2
+            })),
+            leader: -1,
+            victors: profile.players.filter((player, i) => newLevels[i % 2] > 14).map((_, i) => i)
+        })
+        navigate('/calc')
+    }
+
+    return (<Box {...props}>
+        <TableContainer component={Paper}>
+            <PaddedTable size={tableSize}>
+                <DarkTableHead>
+                    <TableRow>
+                        <TableCell>Player</TableCell>
+                        <TableCell align="center">Level</TableCell>
+                        <TableCell align="center">Position</TableCell>
+                        <TableCell>Next Game</TableCell>
+                    </TableRow>
+                </DarkTableHead>
+                <TableBody>
+                    {profile.players.map((player, playerNum) => (
+                        <PlayerRow key={playerNum}
+                            player={player} playerNum={playerNum}
+                            leader={leader}
+                            level={profile.players[playerNum % 2].level}
+                            newLevel={newLevels[playerNum % 2]}
+                            nextLeader={nextLeader}
+                            cutFirst={cutFirst}
+                            willEnd={willEnd}
+                        />
+                    ))}
+                </TableBody>
+            </PaddedTable>
+            <Box m={2} className={mobile ? classes.vContainer : classes.hContainer}>
+                <Box mr={2} className={mobile ? classes.hContainer : classes.vContainer}>
+                    <ScoreInput variant="filled" size={tableSize} className={classes.scoreInput}
+                        label="Score" value={score} onChange={handleScoreChange}
+                    />
+                    {isFirstRound && <Box mt={2} className={classes.biddingBtnContainer}>
+                        <Button variant="contained" color="primary" onClick={() => setFirstRoundDialogOpen(true)}>Bidding</Button>
+                    </Box>}
+                </Box>
+                {score !== undefined && (<Paper variant="outlined" className={classes.outcomeBox}>
+                    <Typography variant="h6">Round Outcome</Typography>
+                    {steps < 3 ? (<>
+                        <Typography variant="body2">Score {'<'}{profile.config.decks * 40} points <Benefit>Defenders +1 level</Benefit></Typography>
+                        {steps < 2 &&
+                            <Typography variant="body2">Score {'<'}{profile.config.decks * 20} points <Benefit>Defenders +1 level</Benefit></Typography>
+                        }
+                        {steps < 1 &&
+                            <Typography variant="body2">Score 0 points <Benefit>Defenders +1 level</Benefit></Typography>
+                        }
+                    </>) : (<>
+                        <Typography variant="body2">Score ≥{profile.config.decks * 40} points <Benefit>Attackers take over as defenders</Benefit></Typography>
+                        {steps > 3 &&
+                            <Typography variant="body2">Score ≥{profile.config.decks * 60} points <Benefit>Attackers +1 level</Benefit></Typography>
+                        }
+                        {steps > 4 &&
+                            <Typography variant="body2">Score ≥{profile.config.decks * 80} points <Benefit>Attackers +1 level</Benefit></Typography>
+                        }
+                        {steps > 5 &&
+                            <Typography variant="body2">Score ≥{profile.config.decks * 100} points <Benefit>Attackers +1 level</Benefit></Typography>
+                        }
+                    </>)
+                    }
+                    <Box className={classes.hContainer} mt={1}>
+                        <Box className={classes.hExpand} />
+                        {(newLevels[0] > 14 || newLevels[1] > 14) ?
+                            (<Button color="primary" variant="contained" endIcon={<Done />}
+                                onClick={handleGameFinish}
+                            >Finish Game</Button>)
+                            : (<Button color="primary" variant="contained" endIcon={<ChevronRight />}
+                                onClick={handleScoreSave}
+                            >Next Round</Button>)
+                        }
+                    </Box>
+                </Paper>)}
+            </Box>
+        </TableContainer>
+        <FirstRoundDialog
+            open={firstRoundDialogOpen} setOpen={setFirstRoundDialogOpen}
+            playerList={profile.players}
+            setLeader={setLeader}
+        />
+    </Box>)
+}
+
+PlayerDetails.propTypes = {
+    profile: ProfilePropType.isRequired,
+    tableSize: PropTypes.oneOf(['small', 'medium']),
+    onUpdate: PropTypes.func.isRequired
+}
+
+export default PlayerDetails
