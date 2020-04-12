@@ -1,4 +1,4 @@
-import { Box, DialogContentText, makeStyles, MenuItem, TextField, Typography } from '@material-ui/core'
+import { Box, DialogContentText, makeStyles, MenuItem, TextField, Typography, Grid } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React, { useState } from 'react'
 import commonCls from '../../components/commonClasses'
@@ -22,14 +22,6 @@ const useStyles = makeStyles(theme => ({
     },
     nicknameField: {
         minWidth: 170
-    },
-    NicknameInput: {
-        minWidth: 300,
-        marginBottom: theme.spacing(3)
-    },
-    settingsContainer: {
-        display: 'flex',
-        flexWrap: 'wrap'
     }
 }))
 
@@ -185,17 +177,17 @@ const PlayerNamingStep = ({ state, dispatch }) => {
                 {NicknameInputWrapped(player, i)}
                 <LevelInput required label="Starting level" value={player.level} className={classes.levelField}
                     onChange={event => dispatch(['players', i, 'level'], event.target.value)} />
-            </Box>)) :
-            [0, 1].map(i => (<Box className={classes.NicknameInput} key={i}>
-                <Box mb={1}><Typography variant="h6">Team {i + 1}</Typography></Box>
-                <LevelInput required label="Starting level" value={state.players[i].level} className={classes.levelField}
-                    onChange={event => dispatch(['players', i, 'level'], event.target.value)} />
-                <Box className={classes.settingsContainer} mt={2}>
-                    {state.players.map((player, j) => (j % 2 === i ? (
-                        <Box mr={3} key={j}>{NicknameInputWrapped(player, j)}</Box>
-                    ) : null))}
-                </Box>
-            </Box>))
+            </Box>)) : (<Grid container spacing={1}>
+                <Grid item xs={6}><Typography variant="h6">Team 1</Typography></Grid>
+                <Grid item xs={6}><Typography variant="h6">Team 2</Typography></Grid>
+                {[0, 1].map(i => (<Grid item key={i} xs={6}><Box mb={2}>
+                    <LevelInput required label="Starting level" value={state.players[i].level} className={classes.levelField}
+                        onChange={event => dispatch(['players', i, 'level'], event.target.value)} />
+                </Box></Grid>))}
+                {state.players.map((player, i) => (<Grid item key={i} xs={6}>
+                    {NicknameInputWrapped(player, i)}
+                </Grid>))}
+            </Grid>)
         }
     </>)
 }
