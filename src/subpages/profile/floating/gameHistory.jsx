@@ -7,7 +7,7 @@ import { DarkTableHead, HighlightableRow, PaddedTable } from '../../../component
 import { HistoryPropType, ProfilePropType } from '../../../helper/profiles'
 
 const RoundRow = ({ roundNum, round }) => (<TableRow>
-    <TableCell align="center">{roundNum + 1}</TableCell>
+    <TableCell align="center" variant="head">{roundNum + 1}</TableCell>
     {round.playerLevels.map((level, i) => (<TableCell align="center" key={i}>
         <LevelDisplay level={level.level} active={level.active} />{round.leader === i && <sup>L</sup>}
     </TableCell>))}
@@ -20,7 +20,7 @@ RoundRow.propTypes = {
 }
 
 const PresentRoundRow = ({ players }) => (<HighlightableRow highlight={1}>
-    <TableCell align="center">Now</TableCell>
+    <TableCell align="center" variant="head">Now</TableCell>
     {players.map(player => <TableCell align="center" key={player.name}><LevelDisplay player={player} /></TableCell>)}
     <TableCell></TableCell>
 </HighlightableRow>)

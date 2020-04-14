@@ -11,7 +11,7 @@ const ProfileContent = ({ profile, onUpdate }) => (
         {profile.victors.length > 0 || <FloatingPlayerDetails profile={profile} onUpdate={onUpdate} mb={2} tableSize="small" />}
         <FloatingGameHistory profile={profile} />
     </>) : (<>
-        <FixedPlayerDetails profile={profile} onUpdate={onUpdate} tableSize="small" mb={2} />
+        {profile.victors.length > 0 || <FixedPlayerDetails profile={profile} onUpdate={onUpdate} tableSize="small" mb={2} />}
         <FixedGameHistory profile={profile} tableSize="small" />
     </>)
 )

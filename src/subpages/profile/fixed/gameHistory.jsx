@@ -44,7 +44,11 @@ const GameHistory = ({ tableSize, profile }) => {
                         <TableCell align="center" variant="head">Now</TableCell>
                         <TableCell align="center"><LevelDisplay level={profile.players[0].level} active={profile.players[0].active} /></TableCell>
                         <TableCell align="center"><LevelDisplay level={profile.players[1].level} active={profile.players[1].active} /></TableCell>
-                        <TableCell>{profile.players[profile.leader].name} (Team {profile.leader % 2 + 1})</TableCell>
+                        <TableCell>{
+                            profile.leader >= 0 ?
+                                `${profile.players[profile.leader].name} (Team ${profile.leader % 2 + 1})` :
+                                ''
+                        }</TableCell>
                         <TableCell></TableCell>
                     </HighlightableRow>
                 </TableBody>
