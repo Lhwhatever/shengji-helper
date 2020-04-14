@@ -6,8 +6,6 @@ import { PlayerPropType } from '../../../components/player'
 import { DarkTableHead, HighlightableRow, PaddedTable } from '../../../components/table'
 import { HistoryPropType, ProfilePropType } from '../../../helper/profiles'
 
-const OutlinedPaper = props => <Paper {...props} variant="outlined" />
-
 const RoundRow = ({ roundNum, round }) => (<TableRow>
     <TableCell align="center">{roundNum + 1}</TableCell>
     {round.playerLevels.map((level, i) => (<TableCell align="center" key={i}>
@@ -36,7 +34,7 @@ const GameHistory = ({ profile }) => {
 
     return (<Paper><Box p={2}>
         <Typography variant="h5">History</Typography>
-        <TableContainer component={OutlinedPaper}>
+        <TableContainer component={Paper} variant="outlined">
             <PaddedTable size={tableSize}>
                 <DarkTableHead>
                     <TableRow>
