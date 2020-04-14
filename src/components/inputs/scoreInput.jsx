@@ -15,13 +15,16 @@ const ScoreInput = ({ value, onChange, label, ...props }) => {
     }
 
     const handleChange = () => {
-        safeOnChange(undefined)
         if (inputRef.current.value === '') {
             setMemory(null)
+            safeOnChange(undefined)
         } else if (inputRef.current.value.match(/^-?\d+$/g)) {
-            setMemory(parseInt(inputRef.current.value))
+            const value = parseInt(inputRef.current.value)
+            setMemory(value)
+            safeOnChange(value % 5 === 0 ? value : undefined)
         } else {
             inputRef.current.value = memory === null ? '' : memory.toString()
+            safeOnChange(undefined)
         }
     }
 
