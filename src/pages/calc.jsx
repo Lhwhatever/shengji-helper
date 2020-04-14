@@ -92,7 +92,7 @@ const Calculator = () => {
                                 value: name
                             })} deleteProfile={() => setDeleteProfileDialogOpen([uuid, e.name])} />
                         </Box>
-                    )) : []
+                    )).reverse() : []
             }
         </Box>
     </Layout>)
