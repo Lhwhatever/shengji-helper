@@ -5,16 +5,21 @@ import FixedGameHistory from './fixed/gameHistory'
 import FixedPlayerDetails from './fixed/playerDetails'
 import FloatingGameHistory from './floating/gameHistory'
 import FloatingPlayerDetails from './floating/playerDetails'
+import { Paper, Box, Typography } from '@material-ui/core'
 
-const ProfileContent = ({ profile, onUpdate }) => (
-    profile.partnership === 'floating' ? (<>
-        {profile.victors.length > 0 || <FloatingPlayerDetails profile={profile} onUpdate={onUpdate} mb={2} tableSize="small" />}
-        <FloatingGameHistory profile={profile} />
-    </>) : (<>
-        {profile.victors.length > 0 || <FixedPlayerDetails profile={profile} onUpdate={onUpdate} tableSize="small" mb={2} />}
-        <FixedGameHistory profile={profile} tableSize="small" />
-    </>)
-)
+const ProfileContent = ({ profile, onUpdate }) => (<>
+    {profile.victors.length > 0 || React.createElement(
+        profile.partnership === 'floating' ? FloatingPlayerDetails : FixedPlayerDetails,
+        { profile, onUpdate, mb: 2, tableSize: 'small' }
+    )}
+    <Paper><Box p={2}>
+        <Typography variant="h5">Game History</Typography>
+        {React.createElement(
+            profile.partnership === 'floating' ? FloatingGameHistory : FixedGameHistory,
+            { profile, tableSize: 'small' }
+        )}
+    </Box></Paper>
+</>)
 
 ProfileContent.propTypes = {
     profile: ProfilePropType.isRequired,

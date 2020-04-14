@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardActions, CardContent, IconButton, InputAdornment, makeStyles, TextField, Typography } from '@material-ui/core'
+import { Box, Button, Card, CardActions, CardContent, IconButton, InputAdornment, makeStyles, TextField, Typography, Dialog, DialogActions, DialogTitle, DialogContent } from '@material-ui/core'
 import { Delete, Done, Edit, ExpandLess, ExpandMore } from '@material-ui/icons'
 import { navigate } from 'gatsby'
 import PropTypes from 'prop-types'
@@ -10,6 +10,8 @@ import { HExpander } from '../../components/structs'
 import { ProfilePropType } from '../../helper/profiles'
 import SimplePlayerStatus from './simplePlayerStatus'
 import formatList from '../../helper/formatList'
+import FloatingGameHistory from '../profile/floating/gameHistory'
+import FixedGameHistory from '../profile/fixed/gameHistory'
 
 
 const useStyles = makeStyles(theme => ({
@@ -28,6 +30,9 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
     const classes = { ...commonCls(), ...useStyles() }
     const [profileNameEditMode, setProfileNameEditMode] = useState(false)
     const [playerListVisibility, setPlayerListVisibility] = useState(false)
+
+    const [historyDialogOpen, openHistoryDialog] = useState(false)
+    const handleCloseHistoryDialog = () => openHistoryDialog(false)
 
     const profileNameFieldRef = useRef()
 
@@ -108,9 +113,23 @@ const ProfileDisplay = ({ uuid, profile, setProfileName, deleteProfile, ...props
         </CardContent>
         <CardActions>
             <HExpander />
-            <Button onClick={useProfile} color="primary">Enter</Button>
+            <Button onClick={useProfile} color="primary" variant="outlined">Enter</Button>
+            <Button onClick={() => openHistoryDialog(true)} color="primary">History</Button>
             <Button onClick={deleteProfile} startIcon={<Delete />} color="secondary">Delete</Button>
         </CardActions>
+        <Dialog
+            open={historyDialogOpen} onClose={handleCloseHistoryDialog}
+        >
+            <DialogTitle>Game History for {profile.name}</DialogTitle>
+            <DialogContent>
+                {React.createElement(profile.partnership === 'floating' ? FloatingGameHistory : FixedGameHistory,
+                    { profile, tableSize: 'small' })
+                }
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleCloseHistoryDialog} color="primary">Close</Button>
+            </DialogActions>
+        </Dialog>
     </Card>)
 
 }

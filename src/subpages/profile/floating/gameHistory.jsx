@@ -1,4 +1,4 @@
-import { Box, Paper, TableBody, TableCell, TableContainer, TableRow, Typography } from '@material-ui/core'
+import { Paper, TableBody, TableCell, TableContainer, TableRow } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { LevelDisplay } from '../../../components/levels'
@@ -29,32 +29,27 @@ PresentRoundRow.propTypes = {
     players: PropTypes.arrayOf(PlayerPropType).isRequired
 }
 
-const GameHistory = ({ profile }) => {
-    const tableSize = 'small'
-
-    return (<Paper><Box p={2}>
-        <Typography variant="h5">History</Typography>
-        <TableContainer component={Paper} variant="outlined">
-            <PaddedTable size={tableSize}>
-                <DarkTableHead>
-                    <TableRow>
-                        <TableCell align="center" color="inherit">Round</TableCell>
-                        {profile.players.map(player => <TableCell key={player.name} align="center">{player.name}</TableCell>)}
-                        <TableCell align="center">Score</TableCell>
-                    </TableRow>
-                </DarkTableHead>
-                <TableBody>
-                    {profile.history.map((round, i) => <RoundRow key={i} round={round} roundNum={i} />)}
-                    <PresentRoundRow players={profile.players} />
-                </TableBody>
-            </PaddedTable>
-        </TableContainer>
-    </Box> </Paper>)
-
-}
+const GameHistory = ({ tableSize, profile }) => (
+    <TableContainer component={Paper} variant="outlined">
+        <PaddedTable size={tableSize}>
+            <DarkTableHead>
+                <TableRow>
+                    <TableCell align="center" color="inherit">Round</TableCell>
+                    {profile.players.map(player => <TableCell key={player.name} align="center">{player.name}</TableCell>)}
+                    <TableCell align="center">Score</TableCell>
+                </TableRow>
+            </DarkTableHead>
+            <TableBody>
+                {profile.history.map((round, i) => <RoundRow key={i} round={round} roundNum={i} />)}
+                <PresentRoundRow players={profile.players} />
+            </TableBody>
+        </PaddedTable>
+    </TableContainer>
+)
 
 GameHistory.propTypes = {
-    profile: ProfilePropType
+    profile: ProfilePropType,
+    tableSize: PropTypes.oneOf(['small', 'medium']).isRequired
 }
 
 export default GameHistory
