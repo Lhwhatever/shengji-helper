@@ -103,11 +103,11 @@ const PlayerDetails = ({ profile, tableSize, onNewRound, ...props }) => {
                     <ScoreInput variant="filled" size={tableSize} className={classes.scoreInput}
                         label="Score" value={score} onChange={handleScoreChange}
                     />
-                    {isFirstRound && <Box mt={2} className={classes.biddingBtnContainer}>
+                    {isFirstRound && <Box className={classes.biddingBtnContainer}>
                         <Button variant="contained" color="primary" onClick={() => setFirstRoundDialogOpen(true)}>Bidding</Button>
                     </Box>}
                 </Box>
-                {score !== undefined && (<Paper variant="outlined" className={classes.outcomeBox}>
+                {steps !== undefined && (<Paper variant="outlined" className={classes.outcomeBox}>
                     <Typography variant="h6">Round Outcome</Typography>
                     {steps < 3 ? (<>
                         <Typography variant="body2">Score {'<'}{profile.config.decks * 40} points <Benefit>Defenders +1 level</Benefit></Typography>

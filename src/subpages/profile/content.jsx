@@ -1,14 +1,13 @@
+import { Box, Button, makeStyles, MenuItem, Paper, TextField, Typography } from '@material-ui/core'
 import PropTypes from 'prop-types'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import commonCls from '../../components/commonClasses'
+import Loading from '../../components/loading'
 import { ProfilePropType } from '../../helper/profiles'
 import FixedGameHistory from './fixed/gameHistory'
 import FixedPlayerDetails from './fixed/playerDetails'
 import FloatingGameHistory from './floating/gameHistory'
 import FloatingPlayerDetails from './floating/playerDetails'
-import { Paper, Box, Typography, TextField, Button, makeStyles, MenuItem } from '@material-ui/core'
-import commonCls from '../../components/commonClasses'
-import { useState } from 'react'
-import { navigate } from 'gatsby'
 
 const useStyles = makeStyles({
     roundNumField: { width: 135 }
@@ -17,7 +16,15 @@ const useStyles = makeStyles({
 const ProfileContent = ({ profile, onUpdate }) => {
     const classes = { ...commonCls(), ...useStyles() }
 
+    const [needsRefresh, setNeedToRefresh] = useState(false)
     const [revertRoundNum, setRevertRoundNum] = useState(profile.history.length ? profile.history.length - 1 : '')
+
+    useEffect(() => {
+        if (needsRefresh) {
+            setNeedToRefresh(false)
+            location.reload(true)
+        }
+    }, [needsRefresh])
 
     const handleRevert = () => {
         setRevertRoundNum(revertRoundNum ? revertRoundNum - 1 : '')
@@ -26,11 +33,11 @@ const ProfileContent = ({ profile, onUpdate }) => {
             players: profile.players.map((player, i) => (
                 { name: player.name, ...profile.history[revertRoundNum].playerLevels[i] }
             )),
-            leader: profile.partnership === 'floating' ? -1 : profile.history[revertRoundNum].leader,
+            leader: (profile.partnership === 'floating' || revertRoundNum === 0) ? -1 : profile.history[revertRoundNum].leader,
             victors: [],
             history: profile.history.filter((_, i) => i < revertRoundNum)
         })
-        navigate('/profile')
+        setNeedToRefresh(true)
     }
 
     const handleNewRound = ({ score, leader, nextLeader, playerLevels, newPlayerLevels, victors }) => {
@@ -43,9 +50,11 @@ const ProfileContent = ({ profile, onUpdate }) => {
             leader: nextLeader,
             history: [...profile.history, { score, leader, playerLevels }]
         })
+
+        setRevertRoundNum(profile.history.length)
     }
 
-    return (<>
+    return needsRefresh ? <Loading /> : (<>
         {profile.victors.length > 0 || React.createElement(
             profile.partnership === 'floating' ? FloatingPlayerDetails : FixedPlayerDetails,
             { profile, onNewRound: handleNewRound, mb: 2, tableSize: 'small' }
