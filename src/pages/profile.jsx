@@ -1,5 +1,5 @@
-import { Box, makeStyles, Typography } from '@material-ui/core'
-import { ChevronLeft } from '@material-ui/icons'
+import { Box, makeStyles, Typography, IconButton, TextField, withStyles } from '@material-ui/core'
+import { ChevronLeft, Edit, Done } from '@material-ui/icons'
 import PropTypes from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
 import Header from '../components/header'
@@ -8,6 +8,7 @@ import { ButtonLink } from '../components/links'
 import Loading from '../components/loading'
 import { loadProfiles, ProfilePropType, saveProfiles } from '../helper/profiles'
 import ProfileContent from '../subpages/profile/content'
+import { blueGrey } from '@material-ui/core/colors'
 
 const activeProfileStorageKey = 'shengji-helper-active'
 const redirectTo = (window, dest) => window.location.replace(dest)
@@ -20,15 +21,47 @@ const useStyles = makeStyles({
     }
 })
 
+const ProfileNameField = withStyles(theme => ({
+    root: {
+        '& input': {
+            color: theme.palette.primary.contrastText
+        },
+        '& label, & label.Mui-focused': {
+            color: blueGrey[300]
+        },
+        '& .MuiOutlinedInput-root': {
+            '& fieldset, &:hover fieldset, &.Mui-focused fieldset': {
+                borderColor: blueGrey[700]
+            }
+        },
+        '& button': {
+            color: blueGrey[300]
+        }
+    }
+}))(TextField)
 
-const ProfileHeader = ({ profile }) => {
+const ProfileHeader = ({ profile, onProfileNameChange }) => {
     const classes = useStyles()
+
+    const [nameField, setNameField] = useState(null)
+
+    const handleStartEdit = () => setNameField(profile.name)
+    const handleEndEdit = () => {
+        onProfileNameChange(nameField)
+        setNameField(null)
+    }
+    const handleNameChange = event => setNameField(event.target.value)
 
     return (<Header>
         <ButtonLink color="inherit" startIcon={<ChevronLeft />} to="/calc">Back</ButtonLink>
         {profile && <Box ml={3} className={classes.profileHeaderTextBox}>
-            <Typography variant="h6">{profile.name}</Typography>
-            <Box ml={2} />
+            {nameField === null ? (<>
+                <Typography variant="h6">{profile.name} </Typography>
+                <IconButton aria-label="edit" color="inherit" onClick={handleStartEdit}><Edit /></IconButton>
+            </>) : (<ProfileNameField variant="outlined" size="small" label="Profile Name" value={nameField} InputProps={{
+                endAdornment: (<IconButton size="small" color="inherit" onClick={handleEndEdit}><Done size="inherit" /></IconButton>)
+            }} onChange={handleNameChange} />)}
+            <Box ml={1} />
             <Typography variant="body2">({profile.config.decks} decks, {profile.players.length} players)</Typography>
         </Box>}
     </Header>)
@@ -36,7 +69,8 @@ const ProfileHeader = ({ profile }) => {
 
 
 ProfileHeader.propTypes = {
-    profile: ProfilePropType
+    profile: ProfilePropType,
+    onProfileNameChange: PropTypes.func.isRequired
 }
 
 const Profile = ({ location }) => {
@@ -80,7 +114,11 @@ const Profile = ({ location }) => {
         value: profile
     })
 
-    return (<Layout header={<ProfileHeader profile={profileList && profileList[uuid]} />}>
+    const handleProfileNameChange = name => handleProfileUpdate({
+        ...profileList[uuid], name
+    })
+
+    return (<Layout header={<ProfileHeader profile={profileList && profileList[uuid]} onProfileNameChange={handleProfileNameChange} />}>
         {(profileList && profileList[uuid]) ?
             <ProfileContent profile={profileList[uuid]} onUpdate={handleProfileUpdate} /> : <Loading />}
     </Layout>)
