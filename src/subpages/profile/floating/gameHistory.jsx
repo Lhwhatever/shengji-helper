@@ -1,4 +1,4 @@
-import { Paper, TableBody, TableCell, TableContainer, TableRow } from '@material-ui/core'
+import { Button, Paper, TableBody, TableCell, TableContainer, TableRow } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import React from 'react'
 import { LevelDisplay } from '../../../components/levels'
@@ -6,17 +6,19 @@ import { PlayerPropType } from '../../../components/player'
 import { DarkTableHead, HighlightableRow, PaddedTable } from '../../../components/table'
 import { HistoryPropType, ProfilePropType } from '../../../helper/profiles'
 
-const RoundRow = ({ roundNum, round }) => (<TableRow>
+const RoundRow = ({ roundNum, round, onRevert }) => (<TableRow>
     <TableCell align="center" variant="head">{roundNum + 1}</TableCell>
     {round.playerLevels.map((level, i) => (<TableCell align="center" key={i}>
         <LevelDisplay level={level.level} active={level.active} />{round.leader === i && <sup>L</sup>}
     </TableCell>))}
     <TableCell align="center">{round.score === undefined ? '-' : round.score}</TableCell>
+    {onRevert && <TableCell align="center"><Button variant="outlined" onClick={() => onRevert(roundNum)}>Revert</Button></TableCell>}
 </TableRow>)
 
 RoundRow.propTypes = {
     roundNum: PropTypes.number.isRequired,
-    round: HistoryPropType.isRequired
+    round: HistoryPropType.isRequired,
+    onRevert: PropTypes.func
 }
 
 const PresentRoundRow = ({ players }) => (<HighlightableRow highlight={1}>
@@ -26,7 +28,7 @@ const PresentRoundRow = ({ players }) => (<HighlightableRow highlight={1}>
 </HighlightableRow>)
 
 PresentRoundRow.propTypes = {
-    players: PropTypes.arrayOf(PlayerPropType).isRequired
+    players: PropTypes.arrayOf(PlayerPropType).isRequired,
 }
 
 const GameHistory = ({ tableSize, profile }) => (
@@ -49,7 +51,7 @@ const GameHistory = ({ tableSize, profile }) => (
 
 GameHistory.propTypes = {
     profile: ProfilePropType,
-    tableSize: PropTypes.oneOf(['small', 'medium']).isRequired
+    tableSize: PropTypes.oneOf(['small', 'medium']).isRequired,
 }
 
 export default GameHistory

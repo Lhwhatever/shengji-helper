@@ -40,7 +40,7 @@ const getVictors = playerList => playerList.reduce((partialList, player, i) => {
 }, [])
 
 
-const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
+const PlayerDetails = ({ profile, onNewRound, tableSize, ...props }) => {
 
     const xs = useMediaQuery(useTheme().breakpoints.down('xs'))
     const [leader, setLeader] = useState(profile.leader)
@@ -97,12 +97,10 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
     const [bid, setBid] = useState({})
 
     const handleScoreSave = () => {
-        onUpdate({
-            ...profile,
-            players: profile.players.map((player, i) => ({ ...player, ...newLevels[i] })),
-            history: [...profile.history, {
-                leader, score, playerLevels: profile.players.map(player => ({ level: player.level, active: player.active }))
-            }]
+        onNewRound({
+            score, leader, nextLeader: -1,
+            playerLevels: profile.players.map(player => ({ level: player.level, active: player.active })),
+            newPlayerLevels: newLevels
         })
         setScore(null)
         setLeader(-1)
@@ -111,9 +109,10 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
     }
 
     const handleGameFinish = () => {
-        onUpdate({
-            ...profile,
-            players: profile.players.map((player, i) => ({ ...player, ...newLevels[i] })),
+        onNewRound({
+            score, leader, nextLeader: -1,
+            playerLevels: profile.players.map(player => ({ level: player.level, active: player.active })),
+            newPlayerLevels: newLevels,
             victors
         })
 
@@ -214,7 +213,7 @@ const PlayerDetails = ({ profile, onUpdate, tableSize, ...props }) => {
 
 PlayerDetails.propTypes = {
     profile: ProfilePropType,
-    onUpdate: PropTypes.func.isRequired,
+    onNewRound: PropTypes.func.isRequired,
     tableSize: PropTypes.oneOf(['small', 'medium'])
 }
 

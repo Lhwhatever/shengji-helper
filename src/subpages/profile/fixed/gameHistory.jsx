@@ -21,7 +21,7 @@ const RoundRow = ({ roundNum, round, players }) => (<TableRow>
 RoundRow.propTypes = {
     roundNum: PropTypes.number.isRequired,
     round: HistoryPropType.isRequired,
-    players: PropTypes.arrayOf(PlayerPropType).isRequired
+    players: PropTypes.arrayOf(PlayerPropType).isRequired,
 }
 
 const GameHistory = ({ tableSize, profile }) => (
@@ -56,7 +56,7 @@ const GameHistory = ({ tableSize, profile }) => (
 
 GameHistory.propTypes = {
     tableSize: PropTypes.oneOf(['small', 'medium']),
-    profile: ProfilePropType.isRequired
+    profile: ProfilePropType.isRequired,
 }
 
 export default GameHistory

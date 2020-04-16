@@ -33,7 +33,7 @@ const calculateNewLevels = (team0Level, team1Level, steps, leader) => {
     return [newTeam0Lvl, newTeam1Lvl]
 }
 
-const PlayerDetails = ({ profile, tableSize, onUpdate, ...props }) => {
+const PlayerDetails = ({ profile, tableSize, onNewRound, ...props }) => {
     const mobile = useMediaQuery(useTheme().breakpoints.down('xs'))
 
     const [leader, setLeader] = useState(profile.leader)
@@ -54,27 +54,20 @@ const PlayerDetails = ({ profile, tableSize, onUpdate, ...props }) => {
     const classes = { ...commonCls(), ...playerDetailStyles() }
 
     const handleScoreSave = () => {
-        onUpdate({
-            ...profile,
-            players: profile.players.map((player, i) => ({
-                name: player.name, level: newLevels[i % 2], active: nextLeader % 2 === i % 2
-            })),
-            leader: nextLeader,
-            history: [...profile.history, {
-                leader, score, playerLevels: profile.players.map(player => ({ level: player.level, active: player.active }))
-            }]
+        onNewRound({
+            score, leader, nextLeader,
+            playerLevels: profile.players.map(player => ({ level: player.level, active: player.active })),
+            newPlayerLevels: profile.players.map((player, i) => ({ level: newLevels[i % 2], active: nextLeader % 2 === i % 2 }))
         })
         setScore(null)
         setLeader(nextLeader)
     }
 
     const handleGameFinish = () => {
-        onUpdate({
-            ...profile,
-            players: profile.players.map((player, i) => ({
-                name: player.name, level: newLevels[i % 2], active: nextLeader % 2 === i % 2
-            })),
-            leader: -1,
+        onNewRound({
+            score, leader, nextLeader: -1,
+            playerLevels: profile.players.map(player => ({ level: player.level, active: player.active })),
+            newPlayerLevels: profile.players.map((player, i) => ({ level: newLevels[i % 2], active: nextLeader % 2 === i % 2 })),
             victors: profile.players.filter((player, i) => newLevels[i % 2] > 14).map((_, i) => i)
         })
         navigate('/calc')
@@ -162,7 +155,7 @@ const PlayerDetails = ({ profile, tableSize, onUpdate, ...props }) => {
 PlayerDetails.propTypes = {
     profile: ProfilePropType.isRequired,
     tableSize: PropTypes.oneOf(['small', 'medium']),
-    onUpdate: PropTypes.func.isRequired
+    onNewRound: PropTypes.func.isRequired
 }
 
 export default PlayerDetails
