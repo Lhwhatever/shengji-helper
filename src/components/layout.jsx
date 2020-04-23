@@ -11,7 +11,7 @@ import './layout.css'
 import { useReducer } from 'react'
 
 
-const Layout = ({ children, header }) => {
+const Layout = ({ children, header, headerProps }) => {
     const data = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {
@@ -36,7 +36,14 @@ const Layout = ({ children, header }) => {
     return (
         <ThemeProvider theme={theme}>
             <SettingsContext.Provider value={settings}>
-                {header || <Header siteTitle={data.site.siteMetadata.title} onSettingsUpdate={handleSettingsUpdate} />}
+                {React.createElement(
+                    header || Header,
+                    {
+                        siteTitle: data.site.siteMetadata.title,
+                        onSettingsUpdate: handleSettingsUpdate,
+                        ...(headerProps || {})
+                    }
+                )}
                 <Container>
                     {children}
                 </Container>
@@ -47,7 +54,8 @@ const Layout = ({ children, header }) => {
 
 Layout.propTypes = {
     children: PropTypes.node,
-    header: PropTypes.node
+    header: PropTypes.elementType,
+    headerProps: PropTypes.object
 }
 
 export default Layout

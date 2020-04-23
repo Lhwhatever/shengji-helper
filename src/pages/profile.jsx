@@ -40,7 +40,7 @@ const ProfileNameField = withStyles(theme => ({
     }
 }))(TextField)
 
-const ProfileHeader = ({ profile, onProfileNameChange }) => {
+const ProfileHeader = ({ profile, onProfileNameChange, ...props }) => {
     const classes = useStyles()
 
     const [nameField, setNameField] = useState(null)
@@ -52,7 +52,7 @@ const ProfileHeader = ({ profile, onProfileNameChange }) => {
     }
     const handleNameChange = event => setNameField(event.target.value)
 
-    return (<Header>
+    return (<Header {...props}>
         <ButtonLink color="inherit" startIcon={<ChevronLeft />} to="/calc">Back</ButtonLink>
         {profile && <Box ml={3} className={classes.profileHeaderTextBox}>
             {nameField === null ? (<>
@@ -118,7 +118,11 @@ const Profile = ({ location }) => {
         ...profileList[uuid], name
     })
 
-    return (<Layout header={<ProfileHeader profile={profileList && profileList[uuid]} onProfileNameChange={handleProfileNameChange} />}>
+    return (<Layout
+        header={ProfileHeader} headerProps={{
+            profile: profileList && profileList[uuid],
+            onProfileNameChange: handleProfileNameChange
+        }}>
         {(profileList && profileList[uuid]) ?
             <ProfileContent profile={profileList[uuid]} onUpdate={handleProfileUpdate} /> : <Loading />}
     </Layout>)
