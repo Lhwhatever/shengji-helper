@@ -1,4 +1,4 @@
-import { blueGrey, red, lightGreen } from '@material-ui/core/colors'
+import { blueGrey, red } from '@material-ui/core/colors'
 import { createMuiTheme } from '@material-ui/core/styles'
 
 const theme = createMuiTheme({
@@ -10,9 +10,16 @@ const theme = createMuiTheme({
             main: red[500]
         },
         error: {
-            main: lightGreen.A400
+            main: red.A200
         }
+    },
+    typography: {
+        fontFamily: [
+            'Roboto',
+            '"Helvetica Neue"',
+            'sans-serif'
+        ].join(',')
     }
 })
 
-export default theme;
+export default theme

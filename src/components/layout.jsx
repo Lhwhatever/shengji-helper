@@ -1,16 +1,18 @@
 
-import React from "react"
-import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
 import { Container } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/core/styles'
-
-import Header from "./header"
+import { graphql, useStaticQuery } from 'gatsby'
+import PropTypes from 'prop-types'
+import React from 'react'
 import theme from '../theme'
-import "./layout.css"
+import SettingsContext from './settings/SettingsContext'
+import Header from './header'
+import './layout.css'
+import { useReducer } from 'react'
 
-const Layout = ({ children }) => {
-  const data = useStaticQuery(graphql`
+
+const Layout = ({ children, header, headerProps }) => {
+    const data = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {
         siteMetadata {
@@ -20,18 +22,40 @@ const Layout = ({ children }) => {
     }
   `)
 
-  return (
-    <ThemeProvider theme={theme}>
-      <Header siteTitle={data.site.siteMetadata.title} />
-      <Container>
-        {children}
-      </Container>
-    </ThemeProvider>
-  )
+    const [settings, settingsDispatch] = useReducer((state, action) => {
+        switch (action.type) {
+            case 'update':
+                return { ...state, [action.key]: action.value }
+            default:
+                throw `Unknown action.type ${action.type}`
+        }
+    }, { displayAce: 'A' })
+
+    const handleSettingsUpdate = (key, value) => settingsDispatch({ type: 'update', key, value })
+
+    return (
+        <ThemeProvider theme={theme}>
+            <SettingsContext.Provider value={settings}>
+                {React.createElement(
+                    header || Header,
+                    {
+                        siteTitle: data.site.siteMetadata.title,
+                        onSettingsUpdate: handleSettingsUpdate,
+                        ...(headerProps || {})
+                    }
+                )}
+                <Container>
+                    {children}
+                </Container>
+            </SettingsContext.Provider>
+        </ThemeProvider>
+    )
 }
 
 Layout.propTypes = {
-  children: PropTypes.node.isRequired,
+    children: PropTypes.node,
+    header: PropTypes.elementType,
+    headerProps: PropTypes.object
 }
 
 export default Layout
