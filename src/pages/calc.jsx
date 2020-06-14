@@ -36,10 +36,16 @@ const Calculator = () => {
                 delete state[action.key]
                 return newState
             }
+            case 'init':
+                return action.value
             default:
                 throw new Error(`Unknown action type ${action.type}`)
         }
-    }, {}, () => loadProfiles(window))
+    }, {})
+
+    useEffect(() => {
+        profileDispatch({ type: 'init', value: loadProfiles(window) })
+    }, [])
 
     useEffect(() => {
         saveProfiles(profiles, window)
