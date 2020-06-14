@@ -1,3 +1,7 @@
+# Note: This project is deprecated
+
+The updated version of this project (using NextJS) can be found at [lhwhatever/sjhelper](https://github.com/Lhwhatever/sjhelper).
+
 # Shengji Helper
 
 This is a React app targeted to help users when playing the Chinese card game Shengji.
